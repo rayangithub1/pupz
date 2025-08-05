@@ -1,0 +1,107 @@
+const express = require('express');
+const socketio = require('socket.io');
+const http = require('http');
+
+const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
+
+// Store waiting users and active pairs
+let waitingUser = null;
+const activePairs = new Map();
+
+app.use(express.static('public'));
+
+io.on('connection', (socket) => {
+    console.log('New user connected: ' + socket.id);
+
+    // Pair users
+    if (waitingUser) {
+        // Create pair
+        const pair = [waitingUser, socket.id];
+        activePairs.set(waitingUser, pair);
+        activePairs.set(socket.id, pair);
+
+        // Notify both users
+        io.to(waitingUser).emit('partnerFound');
+        io.to(socket.id).emit('partnerFound');
+
+        waitingUser = null;
+    } else {
+        waitingUser = socket.id;
+        socket.emit('waiting');
+    }
+
+    // Handle messages
+    socket.on('sendMessage', (message) => {
+        const trimmed = message.trim();
+        if (!trimmed) return; // Prevent sending empty messages
+
+        const pair = activePairs.get(socket.id);
+        if (pair) {
+            const partner = pair.find(user => user !== socket.id);
+            if (partner) {
+                io.to(partner).emit('message', trimmed);
+            }
+        } else {
+            // If no partner is found, let the user know
+            socket.emit('messageError', 'You must be connected to a partner to send messages.');
+        }
+    });
+
+    // Handle skip action
+    socket.on('skip', () => {
+        const pair = activePairs.get(socket.id);
+        if (pair) {
+            const partner = pair.find(user => user !== socket.id);
+            if (partner) {
+                io.to(partner).emit('partnerDisconnected');
+                activePairs.delete(partner);
+            }
+            activePairs.delete(socket.id);
+        }
+        waitingUser = socket.id;
+        socket.emit('waiting');
+    });
+
+    // Handle photo request
+    socket.on('requestPhoto', () => {
+        const pair = activePairs.get(socket.id);
+        if (pair) {
+            const partner = pair.find(user => user !== socket.id);
+            if (partner) {
+                io.to(partner).emit('photoRequest');
+            }
+        }
+    });
+
+    // Handle image sharing
+    socket.on('sendImage', (imageData) => {
+        const pair = activePairs.get(socket.id);
+        if (pair) {
+            const partner = pair.find(user => user !== socket.id);
+            if (partner) {
+                io.to(partner).emit('receiveImage', imageData);
+            }
+        }
+    });
+
+    // Handle disconnection
+    socket.on('disconnect', () => {
+        const pair = activePairs.get(socket.id);
+        if (pair) {
+            const partner = pair.find(user => user !== socket.id);
+            if (partner) {
+                io.to(partner).emit('partnerDisconnected');
+                activePairs.delete(partner);
+            }
+            activePairs.delete(socket.id);
+        }
+        if (waitingUser === socket.id) {
+            waitingUser = null;
+        }
+    });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome to Omiggle</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('bg.gif') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 0.7rem 1rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-brand img {
+      height: 70px;
+      margin-right: 10px;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .speech-bubble {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      max-width: 450px;
+      width: 100%;
+      position: relative;
+    }
+
+    h2 {
+      color: #333;
+      font-weight: bold;
+    }
+
+    .btn-primary, .btn-info {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .checkbox-text {
+      font-size: 12px;
+      color: #555;
+      text-align: left;
+      margin-top: 10px;
+    }
+
+    .checkbox-text a {
+      color: #007bff;
+      text-decoration: underline;
+    }
+
+    .footer-promo {
+      background: #000;
+      color: #fff;
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .footer-promo button {
+      background: #f26ca7;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="#">
+      <img src="PUPZCHAT.gif" alt="Logo" />
+    </a>
+  </nav>
+
+  <!-- Main Centered Content -->
+  <div class="main-content">
+    <div class="speech-bubble">
+      <h2>Random Video Chat Roulette</h2>
+      <p>Talk to strangers on Text or Webcam:</p>
+
+      <input type="text" id="usernameInput" class="form-control mb-3" placeholder="Enter your name"/>
+
+      <button class="btn btn-primary" onclick="startChat('text')">Text Only</button>
+      <button class="btn btn-info" onclick="startChat('video')">Video Chat</button>
+
+      <div class="checkbox-text">
+        <input type="checkbox" id="tosCheck" />
+        I confirm I have read and agree to the 
+        <a href="#">Community Guidelines</a> and <a href="#">Terms of Service</a>.<br />
+        I certify I am at least 18 years old and have reached the age of majority in my location.
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Promo -->
+  <div class="footer-promo">
+    <strong>Talk on the official Girls Roulette (18+)</strong><br/>
+    🌟 It’s Free! &nbsp;&nbsp;👧 Girls on Cam &nbsp;&nbsp;🔞 Adults Only <br/>
+    <button>CONTINUE TO GIRLS ROULETTE</button>
+  </div>
+
+  <script>
+    function startChat(mode) {
+      const name = document.getElementById('usernameInput').value.trim();
+      const tosChecked = document.getElementById('tosCheck').checked;
+      if (!name) {
+        alert('Please enter your name!');
+        return;
+      }
+      if (!tosChecked) {
+        alert('Please confirm the terms and age requirement.');
+        return;
+      }
+      localStorage.setItem('username', name);
+
+      if (mode === 'text') {
+        window.location.href = 'text.html?mode=text';
+      } else if (mode === 'video') {
+        window.location.href = 'video.html?mode=video';
+      }
+    }
+  </script>
+
+</body>
+</html>

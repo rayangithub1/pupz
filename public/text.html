@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="header-content">
+        <img src="PUPZCHAT.gif" alt="Logo" class="logo" />
+        <div class="center-text">Make New Friends Online!</div>
+        <div class="online-count" id="onlineCount">Online +6021</div>
+    </header>
+    
+    <div id="chatContainer">
+        <div id="rightColumn">
+            <div id="messages"></div>
+
+            <div id="inputContainer">
+                <button id="disconnectButton" class="btn">Disconnect</button>
+                <input id="messageInput" type="text" placeholder="Type a message..." />
+                <button id="sendButton">Send</button>
+                <button id="requestPhotoButton">Req Pic</button>
+                <input type="file" id="hiddenFileInput" accept="image/*" hidden />
+            </div>
+        </div>
+    </div>
+</body>
+<script src="script.js"></script>
+</html>
