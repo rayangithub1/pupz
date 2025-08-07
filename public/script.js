@@ -282,10 +282,7 @@ function appendImage(imageData, type) {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-function updateOnlineCount() {
-    const count = Math.floor(Math.random() * (7000 - 6000 + 1)) + 6000;
-    document.getElementById('onlineCount').textContent = `Online: +${count}`;
-}
-
-updateOnlineCount();
-setInterval(updateOnlineCount, 4000);
+const min = 4000;
+  const max = 4500;
+  const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
+  document.getElementById('randomNumber').textContent = `+${randomValue}`;
