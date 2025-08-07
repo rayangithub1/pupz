@@ -241,10 +241,10 @@ function appendMessage(message, type, name = '') {
     nameSpan.style.marginRight = '5px';
 
     if (type === 'user') {
-        nameSpan.textContent = `${username}`;
+        nameSpan.textContent = `${username}:`;
         nameSpan.style.color = 'blue';
     } else if (type === 'partner') {
-        nameSpan.textContent = `${name}`;
+        nameSpan.textContent = `${name}:`;
         nameSpan.style.color = 'red';
     } else if (type === 'system') {
         const existingSystemMessages = messagesDiv.querySelectorAll('.system-message');
