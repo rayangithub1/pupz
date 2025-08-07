@@ -30,30 +30,13 @@ async function startVideoMode() {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         document.getElementById('localVideo').srcObject = localStream;
 
-        peerConnection = new RTCPeerConnection(config);
-
-        localStream.getTracks().forEach(track => {
-            peerConnection.addTrack(track, localStream);
-        });
-
-        peerConnection.ontrack = (event) => {
-            document.getElementById('remoteVideo').srcObject = event.streams[0];
-        };
-
-        peerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-                socket.emit('iceCandidate', event.candidate);
-            }
-        };
-
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-        socket.emit('videoOffer', offer);
+        // Wait for partnerFound before creating peerConnection and offer
     } catch (err) {
         alert("Could not access camera or mic.");
         console.error(err);
     }
 }
+
 
 
 function initializeChatHandlers() {
@@ -168,19 +151,52 @@ function initializeChatHandlers() {
         document.getElementById('sendButton').disabled = true;
     });
 
-    socket.on('partnerFound', () => {
-        appendMessage('You are now connected with a partner!', 'system');
-        document.getElementById('sendButton').disabled = false;
+    socket.on('partnerFound', async () => {
+    appendMessage('You are now connected with a partner!', 'system');
+
+    document.getElementById('sendButton').disabled = false;
+
+    // Create peer connection and send offer
+    peerConnection = new RTCPeerConnection(config);
+
+    localStream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
     });
+
+    peerConnection.ontrack = (event) => {
+        document.getElementById('remoteVideo').srcObject = event.streams[0];
+    };
+
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            socket.emit('iceCandidate', event.candidate);
+        }
+    };
+
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    socket.emit('videoOffer', offer);
+});
+
 
     socket.on('message', ({ text, name }) => {
         appendMessage(text, 'partner', name);
     });
 
     socket.on('partnerDisconnected', () => {
-        appendMessage('Your partner has disconnected.', 'system');
-        document.getElementById('sendButton').disabled = true;
-    });
+    appendMessage('Your partner has disconnected.', 'system');
+    document.getElementById('sendButton').disabled = true;
+
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+    }
+
+    if (document.getElementById('remoteVideo')) {
+        document.getElementById('remoteVideo').srcObject = null;
+    }
+});
+
 
     document.getElementById('sendButton').addEventListener('click', () => {
         const messageInput = document.getElementById('messageInput');
