@@ -10,7 +10,7 @@
       height: 100%;
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: url('bg.gif') no-repeat center center fixed;
+      background: url('bg.png') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       flex-direction: column;
@@ -76,7 +76,7 @@
     }
 
     .footer-promo {
-      background: #000;
+      background: #00000086;
       color: #fff;
       width: 100%;
       padding: 1rem;
@@ -91,6 +91,30 @@
       border-radius: 5px;
       margin-top: 10px;
     }
+
+    .random-number {
+    font-weight: bold;
+    color: grey;
+    margin-left: 15px;
+    font-size: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .random-number {
+      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .random-number {
+      font-size: 20px;
+    }
+
+    .navbar-brand img {
+      height: 50px;
+      margin-right: 10px;
+    }
+  }
   </style>
 </head>
 <body>
@@ -100,6 +124,7 @@
     <a class="navbar-brand" href="#">
       <img src="PUPZCHAT.gif" alt="Logo" />
     </a>
+    <span class="random-number" id="randomNumber"></span>
   </nav>
 
   <!-- Main Centered Content -->
@@ -149,6 +174,11 @@
         window.location.href = 'video.html?mode=video';
       }
     }
+
+    const min = 4000;
+  const max = 4500;
+  const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
+  document.getElementById('randomNumber').textContent = `+${randomValue}`;
   </script>
 
 </body>
