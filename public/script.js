@@ -22,19 +22,39 @@ if (mode === 'video') {
     startVideoMode();
 }
 
-function startVideoMode() {
+async function startVideoMode() {
     const videoContainer = document.getElementById('videoContainer');
     if (videoContainer) videoContainer.style.display = 'block';
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-            document.getElementById('localVideo').srcObject = stream;
-        })
-        .catch((err) => {
-            alert("Could not access camera or mic.");
-            console.error(err);
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('localVideo').srcObject = localStream;
+
+        peerConnection = new RTCPeerConnection(config);
+
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
         });
+
+        peerConnection.ontrack = (event) => {
+            document.getElementById('remoteVideo').srcObject = event.streams[0];
+        };
+
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit('iceCandidate', event.candidate);
+            }
+        };
+
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit('videoOffer', offer);
+    } catch (err) {
+        alert("Could not access camera or mic.");
+        console.error(err);
+    }
 }
+
 
 function initializeChatHandlers() {
     const videoChatButton = document.getElementById('videoChatButton');
@@ -241,10 +261,10 @@ function appendMessage(message, type, name = '') {
     nameSpan.style.marginRight = '5px';
 
     if (type === 'user') {
-        nameSpan.textContent = `${username}:`;
+        nameSpan.textContent = `${username}(You):`;
         nameSpan.style.color = 'blue';
     } else if (type === 'partner') {
-        nameSpan.textContent = `${name}:`;
+        nameSpan.textContent = `${name}(Stranger):`;
         nameSpan.style.color = 'red';
     } else if (type === 'system') {
         const existingSystemMessages = messagesDiv.querySelectorAll('.system-message');
