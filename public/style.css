@@ -53,11 +53,11 @@ html, body {
     }
 
     #leftColumn {
-      width: 25%;
+      width: 35%;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      padding: 10px;
+      padding: 5px;
       background: #fff;
       border-right: 1px solid #ddd;
       box-shadow: inset -1px 0 4px rgba(0, 0, 0, 0.05);
@@ -85,7 +85,7 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-image: url('chat.gif'); /* Replace with your actual image path */
+  background-image: url('.png'); /* Replace with your actual image path */
   background-size: cover; /* Ensures image covers entire area */
   background-position: center; /* Centers the image */
   background-repeat: no-repeat; /* Prevents tiling */
@@ -130,6 +130,13 @@ html, body {
       transition: background-color 0.3s ease, transform 0.1s ease;
       white-space: nowrap;
     }
+
+    #disconnectButton {
+    padding: 6px 10px;
+    font-size: 12px;
+    background-color: #3e9bff;
+    color: white;
+  }
 
     /* Mobile styles */
 @media (max-width: 768px) {
@@ -366,3 +373,27 @@ html, body {
     margin: 0 2px;
   }
 }
+
+.random-number {
+    font-weight: bold;
+    color: grey;
+    margin-left: 15px;
+    font-size: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .random-number {
+      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .random-number {
+      font-size: 20px;
+    }
+
+    .navbar-brand img {
+      height: 50px;
+      margin-right: 10px;
+    }
+  }
