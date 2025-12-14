@@ -147,9 +147,15 @@ function initializeChatHandlers() {
     });
 
     socket.on('waiting', () => {
-        appendMessage('Keep the Chat Clean and do not share absurd pictures. Waiting for a partner...', 'system');
-        document.getElementById('sendButton').disabled = true;
-    });
+  appendMessage(
+    'Keep the Chat Clean and do not share absurd pictures. Waiting for a partner...',
+    'system'
+  )
+
+  document.getElementById('sendButton').disabled = true
+  document.querySelector('.chat-actions').classList.add('hidden')
+})
+
 
     socket.on('partnerFound', async () => {
     appendMessage('You are now connected with a partner!', 'system');
@@ -343,4 +349,5 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
 
