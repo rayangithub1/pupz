@@ -268,55 +268,71 @@ function initializeChatHandlers() {
 }
 
 function appendMessage(message, type, name = '') {
-    const messagesDiv = document.getElementById('messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message');
+  const messagesDiv = document.getElementById('messages')
 
-    const nameSpan = document.createElement('span');
-    nameSpan.style.fontWeight = 'bold';
-    nameSpan.style.marginRight = '5px';
+  // SYSTEM MESSAGE
+  if (type === 'system') {
+    const sys = document.createElement('div')
+    sys.className = 'message-box-holder'
+    sys.innerHTML = `
+      <div class="message-box" style="background:#ffe5e5;border-color:#ffb3b3;">
+        ${message}
+      </div>
+    `
+    messagesDiv.appendChild(sys)
+    messagesDiv.scrollTop = messagesDiv.scrollHeight
+    return
+  }
 
-    if (type === 'user') {
-        nameSpan.textContent = `${username}(You):`;
-        nameSpan.style.color = 'blue';
-    } else if (type === 'partner') {
-        nameSpan.textContent = `${name}(Stranger):`;
-        nameSpan.style.color = 'red';
-    } else if (type === 'system') {
-        const existingSystemMessages = messagesDiv.querySelectorAll('.system-message');
-        existingSystemMessages.forEach(msg => msg.remove());
+  // USER MESSAGE
+  if (type === 'user') {
+    const holder = document.createElement('div')
+    holder.className = 'message-box-holder'
+    holder.innerHTML = `
+      <div class="message-box">${message}</div>
+    `
+    messagesDiv.appendChild(holder)
+  }
 
-        messageDiv.classList.add('system-message');
-        messageDiv.textContent = message;
-        messagesDiv.appendChild(messageDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        return;
-    }
+  // PARTNER MESSAGE
+  if (type === 'partner') {
+    const holder = document.createElement('div')
+    holder.className = 'message-box-holder'
+    holder.innerHTML = `
+      <div class="message-sender">${name || 'Stranger'}</div>
+      <div class="message-box message-partner">${message}</div>
+    `
+    messagesDiv.appendChild(holder)
+  }
 
-    const messageText = document.createElement('span');
-    messageText.textContent = ` ${message}`;
-
-    messageDiv.appendChild(nameSpan);
-    messageDiv.appendChild(messageText);
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  messagesDiv.scrollTop = messagesDiv.scrollHeight
 }
+
 
 function appendImage(imageData, type) {
-    const messagesDiv = document.getElementById('messages');
-    const container = document.createElement('div');
-    container.classList.add('message', type === 'user' ? 'user-message' : 'partner-message');
+  const messagesDiv = document.getElementById('messages')
+  const holder = document.createElement('div')
+  holder.className = 'message-box-holder'
 
-    const img = document.createElement('img');
-    img.src = imageData;
-    img.style.maxWidth = '200px';
-    img.style.borderRadius = '10px';
-    img.style.margin = '5px 0';
+  if (type === 'user') {
+    holder.innerHTML = `
+      <div class="message-box">
+        <img src="${imageData}" style="max-width:200px;border-radius:8px;">
+      </div>
+    `
+  } else {
+    holder.innerHTML = `
+      <div class="message-sender">Stranger</div>
+      <div class="message-box message-partner">
+        <img src="${imageData}" style="max-width:200px;border-radius:8px;">
+      </div>
+    `
+  }
 
-    container.appendChild(img);
-    messagesDiv.appendChild(container);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  messagesDiv.appendChild(holder)
+  messagesDiv.scrollTop = messagesDiv.scrollHeight
 }
+
 
 const min = 4000;
   const max = 4500;
