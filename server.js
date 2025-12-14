@@ -66,6 +66,32 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+
+    // Remove from waiting queue if present
+    waitingUsers = waitingUsers.filter(id => id !== socket.id);
+
+    // If user had a partner, notify them
+    if (socket.partner) {
+        socket.partner.emit('partnerOffline');
+
+        // Remove pairing from activePairs
+        activePairs.delete(socket.id);
+        activePairs.delete(socket.partner.id);
+
+        // Remove partner reference
+        delete socket.partner.partner;
+
+        // Put partner back into waiting pool
+        if (!waitingUsers.includes(socket.partner.id)) {
+            waitingUsers.push(socket.partner.id);
+            socket.partner.emit('waiting');
+        }
+    }
+});
+
+
     socket.on('skip', () => {
         if (socket.partner) {
             socket.partner.emit('partnerDisconnected');
@@ -151,3 +177,4 @@ socket.on('startLooking', () => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
