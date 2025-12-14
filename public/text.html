@@ -387,6 +387,31 @@ ul {
     padding-bottom: 80px; /* keyboard safe */
   }
 }
+
+		/* ===== Site logo above chat header ===== */
+.chatbox-site-logo {
+  text-align: center;
+  padding: 10px 0;
+  background: #fff;
+  border-radius: 10px 10px 0 0;
+}
+
+.chatbox-site-logo img {
+  height: 40px;
+  width: auto;
+}
+
+/* Adjust header radius since logo is above */
+.chatbox-top {
+  border-radius: 0;
+}
+
+		@media (max-width: 768px) {
+  .chatbox-site-logo img {
+    height: 34px;
+  }
+}
+
     </style>
 </head>
 
@@ -451,6 +476,7 @@ ul {
   <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
