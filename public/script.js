@@ -191,19 +191,29 @@ function initializeChatHandlers() {
     });
 
     socket.on('partnerDisconnected', () => {
-    appendMessage('Your partner has disconnected.', 'system');
-    document.getElementById('sendButton').disabled = true;
-    document.querySelector('.chat-actions').classList.add('hidden')
+  appendMessage('Your partner has disconnected.', 'system');
 
-    if (peerConnection) {
-        peerConnection.close();
-        peerConnection = null;
-    }
+  document.getElementById('sendButton').disabled = true;
+  document.querySelector('.chat-actions').classList.add('hidden');
 
-    if (document.getElementById('remoteVideo')) {
-        document.getElementById('remoteVideo').srcObject = null;
-    }
+  // 🔴 FIX: reset disconnect button state
+  const disconnectButton = document.getElementById('disconnectButton');
+  disconnectButton.textContent = 'Start';
+  disconnectButton.classList.remove('confirm');
+  disconnectButton.classList.add('start');
+  disconnectState = 'start';
+
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+
+  const remoteVideo = document.getElementById('remoteVideo');
+  if (remoteVideo) {
+    remoteVideo.srcObject = null;
+  }
 });
+
 
 
     document.getElementById('sendButton').addEventListener('click', () => {
@@ -351,5 +361,6 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
 
 
