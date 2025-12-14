@@ -7,16 +7,221 @@
     <title>Chat App</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <script src="/socket.io/socket.io.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ===== Reset & Base ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: "Inter", Arial, sans-serif;
+    background: #dfe3ee;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar Styling */
+.custom-nav {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 0.7rem 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-nav .navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.custom-nav .navbar-brand img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+/* Random number (online count) */
+.random-number {
+  font-weight: bold;
+  color: grey;
+  font-size: 20px;
+}
+
+@media (max-width: 768px) {
+  .random-number {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .random-number {
+    font-size: 20px;
+  }
+
+  .custom-nav .navbar-brand img {
+    height: 50px;
+  }
+}
+
+
+/* ===== Chat Container ===== */
+#chatContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+/* ===== Main Chat Box (Desktop = Square-ish) ===== */
+#rightColumn {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 480px;
+    height: 80vh;
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #c8c8c8;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* ===== Messages Area ===== */
+#messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* chats stick to bottom */
+    scroll-behavior: smooth;
+    background: #f9f9f9;
+}
+
+/* ===== Input Bar ===== */
+#inputContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background: #f1f1f1;
+}
+
+#messageInput {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border-radius: 20px;
+    border: 1px solid #bbb;
+    font-size: 0.95rem;
+    outline: none;
+    background: #fff;
+}
+
+/* ===== Perfect Simple Buttons ===== */
+#inputContainer button {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 10px;   /* perfect smooth corners */
+    font-size: 15px;
+    font-weight: 500;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+    min-width: 50px;       /* all buttons equal width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.2s ease;
+}
+
+/* Hover */
+#inputContainer button:hover {
+    background: #0069d9;
+}
+
+/* Disconnect (red) */
+#disconnectButton {
+    background: #dc3545;
+}
+
+#disconnectButton:hover {
+    background: #c12735;
+}
+
+/* Request Photo (gray) */
+#requestPhotoButton {
+    background: #6c757d;
+}
+
+#requestPhotoButton:hover {
+    background: #5a6268;
+}
+
+
+/* ===== Mobile Version: WhatsApp-Like Full Screen ===== */
+@media (max-width: 600px) {
+    body, html {
+        height: 100%;
+    }
+
+    #chatContainer {
+        padding: 0;
+        height: calc(100% - 120px);
+    }
+
+    #rightColumn {
+        width: 100%;
+        height: 100vh;
+        max-width: none;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+    }
+
+    #messages {
+        padding: 1rem 0.8rem 90px;
+    }
+
+    #inputContainer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        z-index: 999;
+        padding: 10px;
+    }
+
+    /* When mobile keyboard opens */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+        #inputContainer {
+            padding-bottom: calc(env(safe-area-inset-bottom) + 6px);
+        }
+    }
+}
+
+
+    </style>
 </head>
 
 <body>
-    <header class="header-content">
-        <img src="PUPZCHAT.gif" alt="Logo" class="logo" />
-        <div class="center-text">Make New Friends Online!</div>
-        <span class="random-number" id="randomNumber"></span>
-    </header>
-    
+    <!-- Navbar -->
+<nav class="navbar custom-nav">
+  <a class="navbar-brand" href="index.html">
+    <img src="logo-main.png" alt="Logo" />
+  </a>
+  <span class="random-number" id="randomNumber"></span>
+</nav>
+
+
     <div id="chatContainer">
         <div id="rightColumn">
             <div id="messages"></div>
@@ -25,11 +230,12 @@
                 <button id="disconnectButton" class="btn">Disconnect</button>
                 <input id="messageInput" type="text" placeholder="Type a message..." />
                 <button id="sendButton">Send</button>
-                <button id="requestPhotoButton">Req Pic</button>
+                <button id="requestPhotoButton">Pic</button>
                 <input type="file" id="hiddenFileInput" accept="image/*" hidden />
             </div>
         </div>
     </div>
+
+    <script src="script.js"></script>
 </body>
-<script src="script.js"></script>
 </html>
