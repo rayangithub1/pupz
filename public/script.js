@@ -222,34 +222,39 @@ function initializeChatHandlers() {
 
     const disconnectButton = document.getElementById('disconnectButton');
     disconnectButton.addEventListener('click', () => {
-        switch (disconnectState) {
-            case 'disconnect':
-                disconnectButton.textContent = 'Confirm?';
-                disconnectButton.classList.remove('btn-outline-primary');
-                disconnectButton.classList.add('btn-outline-danger');
-                disconnectState = 'confirm';
-                break;
+  switch (disconnectState) {
 
-            case 'confirm':
-                socket.emit('disconnectPartner');
-                appendMessage('You have disconnected from your partner.', 'system');
-                disconnectButton.textContent = 'Start';
-                disconnectButton.classList.remove('btn-outline-danger');
-                disconnectButton.classList.add('btn-outline-success');
-                disconnectState = 'start';
-                document.getElementById('sendButton').disabled = true;
-                break;
+    case 'disconnect':
+      disconnectButton.textContent = 'Confirm?'
+      disconnectButton.classList.add('confirm')
+      disconnectButton.classList.remove('start')
+      disconnectState = 'confirm'
+      break
 
-            case 'start':
-                socket.emit('startLooking');
-                appendMessage('Searching for a new partner...', 'system');
-                disconnectButton.textContent = 'Disconnect';
-                disconnectButton.classList.remove('btn-outline-success');
-                disconnectButton.classList.add('btn-outline-primary');
-                disconnectState = 'disconnect';
-                break;
-        }
-    });
+    case 'confirm':
+      socket.emit('disconnectPartner')
+      appendMessage('You have disconnected from your partner.', 'system')
+
+      disconnectButton.textContent = 'Start'
+      disconnectButton.classList.remove('confirm')
+      disconnectButton.classList.add('start')
+
+      document.getElementById('sendButton').disabled = true
+      disconnectState = 'start'
+      break
+
+    case 'start':
+      socket.emit('startLooking')
+      appendMessage('Searching for a new partner...', 'system')
+
+      disconnectButton.textContent = 'Disconnect'
+      disconnectButton.classList.remove('start', 'confirm')
+
+      disconnectState = 'disconnect'
+      break
+  }
+})
+
 
     const style = document.createElement('style');
     style.textContent = `
@@ -338,3 +343,4 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
