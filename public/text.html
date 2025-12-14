@@ -412,6 +412,38 @@ ul {
   }
 }
 
+/* ===== Chat action buttons ===== */
+.chat-actions {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border-top: 1px solid rgba(0,0,0,.1);
+  background: #f7f7f7;
+}
+
+.chat-action-btn {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.chat-action-btn.disconnect {
+  background: #dc3545;
+  color: #fff;
+}
+
+.chat-action-btn.photo {
+  background: #6c757d;
+  color: #fff;
+}
+
+.chat-action-btn:hover {
+  opacity: 0.9;
+}
+
     </style>
 </head>
 
@@ -439,6 +471,20 @@ ul {
 
     <!-- IMPORTANT -->
     <div class="chat-messages" id="messages"></div>
+
+	  <!-- Chat action buttons -->
+<div class="chat-actions">
+  <button id="disconnectButton" class="chat-action-btn disconnect">
+    Disconnect
+  </button>
+
+  <button id="requestPhotoButton" class="chat-action-btn photo">
+    📷 Photo
+  </button>
+</div>
+
+<input type="file" id="hiddenFileInput" accept="image/*" hidden>
+
 
     <div class="chat-input-holder">
       <textarea
@@ -476,6 +522,7 @@ ul {
   <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
