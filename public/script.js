@@ -233,29 +233,42 @@ function initializeChatHandlers() {
         appendMessage(text, 'partner', name);
     });
 
-    socket.on('partnerDisconnected', () => {
+   socket.on('partnerDisconnected', () => {
   appendMessage('Your partner has disconnected.', 'system');
 
+  // Disable chat UI
   document.getElementById('sendButton').disabled = true;
   document.querySelector('.chat-actions').classList.add('hidden');
 
-  // 🔴 FIX: reset disconnect button state
+  // Cancel offline auto-disconnect timer if running
+  if (offlineTimeout) {
+    clearTimeout(offlineTimeout);
+    offlineTimeout = null;
+  }
+
+  // Reset disconnect button → START
   const disconnectButton = document.getElementById('disconnectButton');
   disconnectButton.textContent = 'Start';
   disconnectButton.classList.remove('confirm');
   disconnectButton.classList.add('start');
   disconnectState = 'start';
 
+  // Close peer connection safely
   if (peerConnection) {
+    peerConnection.getSenders().forEach(sender => {
+      if (sender.track) sender.track.stop();
+    });
     peerConnection.close();
     peerConnection = null;
   }
 
+  // Clear remote video
   const remoteVideo = document.getElementById('remoteVideo');
   if (remoteVideo) {
     remoteVideo.srcObject = null;
   }
 });
+
 
 
 
@@ -404,6 +417,7 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
 
 
 
