@@ -69,6 +69,41 @@ function initializeChatHandlers() {
             socket.emit('videoOffer', offer);
         });
     }
+
+    socket.on('partnerFound', async () => {
+
+  // ✅ Cancel offline auto-disconnect
+  if (offlineTimeout) {
+    clearTimeout(offlineTimeout);
+    offlineTimeout = null;
+  }
+
+  appendMessage('You are now connected with a partner!', 'system');
+
+  document.getElementById('sendButton').disabled = false;
+  document.querySelector('.chat-actions').classList.remove('hidden');
+
+  peerConnection = new RTCPeerConnection(config);
+
+  localStream.getTracks().forEach(track => {
+    peerConnection.addTrack(track, localStream);
+  });
+
+  peerConnection.ontrack = (event) => {
+    document.getElementById('remoteVideo').srcObject = event.streams[0];
+  };
+
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      socket.emit('iceCandidate', event.candidate);
+    }
+  };
+
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  socket.emit('videoOffer', offer);
+});
+
     
     socket.on('videoOffer', async (offer) => {
         document.getElementById('videoContainer').style.display = 'block';
@@ -369,6 +404,7 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
 
 
 
