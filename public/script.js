@@ -161,6 +161,7 @@ function initializeChatHandlers() {
     appendMessage('You are now connected with a partner!', 'system');
 
     document.getElementById('sendButton').disabled = false;
+    document.querySelector('.chat-actions').classList.remove('hidden')
 
     // Create peer connection and send offer
     peerConnection = new RTCPeerConnection(config);
@@ -192,6 +193,7 @@ function initializeChatHandlers() {
     socket.on('partnerDisconnected', () => {
     appendMessage('Your partner has disconnected.', 'system');
     document.getElementById('sendButton').disabled = true;
+    document.querySelector('.chat-actions').classList.add('hidden')
 
     if (peerConnection) {
         peerConnection.close();
