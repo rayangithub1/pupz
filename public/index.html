@@ -5,35 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Welcome to Omiggle</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+
   <style>
+    :root {
+      --bg: #ffffff;
+      --text: #222;
+      --bubble-bg: #ffffff;
+      --nav-bg: rgba(255, 255, 255, 0.95);
+      --footer-bg: #00000086;
+    }
+
+    /* DARK MODE VARIABLES */
+    .dark-mode {
+      --bg: #121212;
+      --text: #f1f1f1;
+      --bubble-bg: #1e1e1e;
+      --nav-bg: rgba(20, 20, 20, 0.95);
+      --footer-bg: #000000cc;
+    }
+
+    /* GLOBAL */
     html, body {
       height: 100%;
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: url('bg.png') no-repeat center center fixed;
-      background-size: cover;
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       flex-direction: column;
+      transition: background 0.3s, color 0.3s;
     }
 
+    /* Background */
+    body.light-bg {
+      background: url('bg.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    /* NAVBAR */
     .navbar {
-      background-color: rgba(255, 255, 255, 0.95);
+      background-color: var(--nav-bg);
       padding: 0.7rem 1rem;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .navbar-brand {
-      font-weight: bold;
-      font-size: 1.5rem;
       display: flex;
+      justify-content: space-between;
       align-items: center;
     }
 
     .navbar-brand img {
-      height: 70px;
+      height: 40px;
       margin-right: 10px;
     }
 
+    /* Dark/Light toggle button */
+    .toggle-btn {
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 22px;
+      margin-left: 10px;
+      color: var(--text);
+      transition: 0.3s;
+    }
+
+    /* MAIN CONTENT */
     .main-content {
       flex: 1;
       display: flex;
@@ -43,21 +78,17 @@
     }
 
     .speech-bubble {
-      background: white;
+      background: var(--bubble-bg);
       border-radius: 20px;
       padding: 2rem;
       text-align: center;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
       max-width: 450px;
       width: 100%;
-      position: relative;
+      transition: background 0.3s;
     }
 
-    h2 {
-      color: #333;
-      font-weight: bold;
-    }
-
+    /* BUTTONS */
     .btn-primary, .btn-info {
       width: 100%;
       margin-bottom: 10px;
@@ -65,18 +96,19 @@
 
     .checkbox-text {
       font-size: 12px;
-      color: #555;
+      color: var(--text);
       text-align: left;
       margin-top: 10px;
     }
 
     .checkbox-text a {
-      color: #007bff;
+      color: #4aa3ff;
       text-decoration: underline;
     }
 
+    /* FOOTER */
     .footer-promo {
-      background: #00000086;
+      background: var(--footer-bg);
       color: #fff;
       width: 100%;
       padding: 1rem;
@@ -92,62 +124,52 @@
       margin-top: 10px;
     }
 
+    /* ONLINE NUMBER */
     .random-number {
-    font-weight: bold;
-    color: grey;
-    margin-left: 15px;
-    font-size: 40px;
-  }
-
-  @media (max-width: 768px) {
-    .random-number {
-      font-size: 16px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .random-number {
+      font-weight: bold;
+      color: grey;
+      margin-left: 15px;
       font-size: 20px;
     }
-
-    .navbar-brand img {
-      height: 50px;
-      margin-right: 10px;
-    }
-  }
   </style>
 </head>
-<body>
+<body class="light-bg">
 
-  <!-- Navbar -->
+  <!-- NAVBAR -->
   <nav class="navbar">
     <a class="navbar-brand" href="#">
-      <img src="PUPZCHAT.gif" alt="Logo" />
+      <img src="logo-main.png" alt="Logo" />
     </a>
-    <span class="random-number" id="randomNumber"></span>
+
+    <div style="display: flex; align-items: center;">
+      <span class="random-number" id="randomNumber"></span>
+
+      <!-- Dark/Light Toggle -->
+      <button class="toggle-btn" id="themeToggle">🌙</button>
+    </div>
   </nav>
 
-  <!-- Main Centered Content -->
+  <!-- MAIN CENTERED CONTENT -->
   <div class="main-content">
     <div class="speech-bubble">
-      <h2>Random Video Chat Roulette</h2>
-      <p>Talk to strangers on Text or Webcam:</p>
+      <h2>Random Text Chat Roulette</h2>
+      <p>Talk to strangers!</p>
 
       <input type="text" id="usernameInput" class="form-control mb-3" placeholder="Enter your name"/>
 
-      <button class="btn btn-primary" onclick="startChat('text')">Text Only</button>
-      <button class="btn btn-info" onclick="startChat('video')">Video Chat</button>
+      <button class="btn btn-primary" onclick="startChat('text')">Start Text Chat</button>
 
       <div class="checkbox-text">
         <input type="checkbox" id="tosCheck" />
         I confirm I have read and agree to the 
-        <a href="#">Community Guidelines</a> and <a href="#">Terms of Service</a>.<br />
-        I certify I am at least 18 years old and have reached the age of majority in my location.
+        <a href="#">Community Guidelines</a> and 
+        <a href="#">Terms of Service</a>.<br />
+        I certify I am at least 18 years old.
       </div>
     </div>
   </div>
 
-  <!-- Footer Promo -->
+  <!-- FOOTER PROMO -->
   <div class="footer-promo">
     <strong>Talk on the official Girls Roulette (18+)</strong><br/>
     🌟 It’s Free! &nbsp;&nbsp;👧 Girls on Cam &nbsp;&nbsp;🔞 Adults Only <br/>
@@ -155,30 +177,47 @@
   </div>
 
   <script>
+    /* START CHAT */
     function startChat(mode) {
       const name = document.getElementById('usernameInput').value.trim();
       const tosChecked = document.getElementById('tosCheck').checked;
-      if (!name) {
-        alert('Please enter your name!');
-        return;
-      }
-      if (!tosChecked) {
-        alert('Please confirm the terms and age requirement.');
-        return;
-      }
-      localStorage.setItem('username', name);
 
-      if (mode === 'text') {
-        window.location.href = 'text.html?mode=text';
-      } else if (mode === 'video') {
-        window.location.href = 'video.html?mode=video';
+      if (!name) return alert('Please enter your name!');
+      if (!tosChecked) return alert('Please confirm the terms.');
+
+      localStorage.setItem('username', name);
+      window.location.href = 'text.html?mode=text';
+    }
+
+    /* RANDOM NUMBER */
+    const min = 4000, max = 4500;
+    document.getElementById('randomNumber').textContent =
+      "+" + (Math.floor(Math.random() * (max - min + 1)) + min);
+
+    /* DARK / LIGHT MODE TOGGLE */
+    const toggleBtn = document.getElementById("themeToggle");
+
+    function applyTheme(theme) {
+      if (theme === "dark") {
+        document.body.classList.add("dark-mode");
+        document.body.classList.remove("light-bg");
+        toggleBtn.textContent = "☀️";
+      } else {
+        document.body.classList.remove("dark-mode");
+        document.body.classList.add("light-bg");
+        toggleBtn.textContent = "🌙";
       }
     }
 
-    const min = 4000;
-  const max = 4500;
-  const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
-  document.getElementById('randomNumber').textContent = `+${randomValue}`;
+    toggleBtn.addEventListener("click", () => {
+      const current = localStorage.getItem("theme") || "light";
+      const newTheme = current === "light" ? "dark" : "light";
+      localStorage.setItem("theme", newTheme);
+      applyTheme(newTheme);
+    });
+
+    /* Load saved theme */
+    applyTheme(localStorage.getItem("theme") || "light");
   </script>
 
 </body>
