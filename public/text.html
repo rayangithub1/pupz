@@ -99,9 +99,12 @@ html, body {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* chats stick to bottom */
     scroll-behavior: smooth;
     background: #f9f9f9;
+}
+
+.spacer {
+    margin-top: auto;
 }
 
 /* ===== Input Bar ===== */
@@ -224,7 +227,9 @@ html, body {
 
     <div id="chatContainer">
         <div id="rightColumn">
-            <div id="messages"></div>
+            <div id="messages">
+                <div class="spacer"></div>
+            </div>
 
             <div id="inputContainer">
                 <button id="disconnectButton" class="btn">Disconnect</button>
@@ -239,3 +244,4 @@ html, body {
     <script src="script.js"></script>
 </body>
 </html>
+
