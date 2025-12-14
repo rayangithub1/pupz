@@ -69,36 +69,7 @@ function initializeChatHandlers() {
             socket.emit('videoOffer', offer);
         });
     }
-
-    socket.on('partnerOffline', () => {
-  appendMessage('Partner is offline. Waiting 10 seconds...', 'system');
-
-  // Disable chat immediately
-  document.getElementById('sendButton').disabled = true;
-  document.querySelector('.chat-actions').classList.add('hidden');
-
-  // Start 10-second auto-disconnect timer
-  offlineTimeout = setTimeout(() => {
-    appendMessage('Partner did not return. Disconnected.', 'system');
-
-    const disconnectButton = document.getElementById('disconnectButton');
-    disconnectButton.textContent = 'Start';
-    disconnectButton.classList.remove('confirm');
-    disconnectButton.classList.add('start');
-    disconnectState = 'start';
-
-    if (peerConnection) {
-      peerConnection.close();
-      peerConnection = null;
-    }
-
-    const remoteVideo = document.getElementById('remoteVideo');
-    if (remoteVideo) {
-      remoteVideo.srcObject = null;
-    }
-  }, 10000);
-});
-
+    
     socket.on('videoOffer', async (offer) => {
         document.getElementById('videoContainer').style.display = 'block';
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -398,6 +369,7 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
 
 
 
