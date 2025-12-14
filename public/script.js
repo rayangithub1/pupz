@@ -2,6 +2,7 @@ let socket;
 let username = '';
 let localStream, peerConnection;
 const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+let offlineTimeout = null;
 
 // Get username and mode from storage and query
 const urlParams = new URLSearchParams(window.location.search);
@@ -68,6 +69,35 @@ function initializeChatHandlers() {
             socket.emit('videoOffer', offer);
         });
     }
+
+    socket.on('partnerOffline', () => {
+  appendMessage('Partner is offline. Waiting 10 seconds...', 'system');
+
+  // Disable chat immediately
+  document.getElementById('sendButton').disabled = true;
+  document.querySelector('.chat-actions').classList.add('hidden');
+
+  // Start 10-second auto-disconnect timer
+  offlineTimeout = setTimeout(() => {
+    appendMessage('Partner did not return. Disconnected.', 'system');
+
+    const disconnectButton = document.getElementById('disconnectButton');
+    disconnectButton.textContent = 'Start';
+    disconnectButton.classList.remove('confirm');
+    disconnectButton.classList.add('start');
+    disconnectState = 'start';
+
+    if (peerConnection) {
+      peerConnection.close();
+      peerConnection = null;
+    }
+
+    const remoteVideo = document.getElementById('remoteVideo');
+    if (remoteVideo) {
+      remoteVideo.srcObject = null;
+    }
+  }, 10000);
+});
 
     socket.on('videoOffer', async (offer) => {
         document.getElementById('videoContainer').style.display = 'block';
@@ -158,32 +188,39 @@ function initializeChatHandlers() {
 
 
     socket.on('partnerFound', async () => {
-    appendMessage('You are now connected with a partner!', 'system');
 
-    document.getElementById('sendButton').disabled = false;
-    document.querySelector('.chat-actions').classList.remove('hidden')
+  // ✅ Cancel offline auto-disconnect
+  if (offlineTimeout) {
+    clearTimeout(offlineTimeout);
+    offlineTimeout = null;
+  }
 
-    // Create peer connection and send offer
-    peerConnection = new RTCPeerConnection(config);
+  appendMessage('You are now connected with a partner!', 'system');
 
-    localStream.getTracks().forEach(track => {
-        peerConnection.addTrack(track, localStream);
-    });
+  document.getElementById('sendButton').disabled = false;
+  document.querySelector('.chat-actions').classList.remove('hidden');
 
-    peerConnection.ontrack = (event) => {
-        document.getElementById('remoteVideo').srcObject = event.streams[0];
-    };
+  peerConnection = new RTCPeerConnection(config);
 
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            socket.emit('iceCandidate', event.candidate);
-        }
-    };
+  localStream.getTracks().forEach(track => {
+    peerConnection.addTrack(track, localStream);
+  });
 
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    socket.emit('videoOffer', offer);
+  peerConnection.ontrack = (event) => {
+    document.getElementById('remoteVideo').srcObject = event.streams[0];
+  };
+
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      socket.emit('iceCandidate', event.candidate);
+    }
+  };
+
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  socket.emit('videoOffer', offer);
 });
+
 
 
     socket.on('message', ({ text, name }) => {
@@ -361,6 +398,7 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
 
 
 
