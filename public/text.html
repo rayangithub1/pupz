@@ -332,10 +332,14 @@ ul {
 /* ===== Desktop: center chatbox ===== */
 @media (min-width: 769px) {
   .chatbox-holder {
+    position: fixed;
+    top: 50%;
     left: 50%;
     right: auto;
-    bottom: 50%;
-    transform: translate(-50%, 50%);
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    height: auto;
+    align-items: center;
     justify-content: center;
   }
 
@@ -343,6 +347,7 @@ ul {
     margin: 0;
   }
 }
+
 
 /* ===== Mobile: full screen chat ===== */
 @media (max-width: 768px) {
@@ -554,6 +559,7 @@ ul {
   <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
