@@ -481,6 +481,50 @@ ul {
   display: none;
 }
 
+		/* ===== Video Boxes ===== */
+.video-area {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: #111;
+  border-top: 1px solid rgba(0,0,0,.2);
+}
+
+.video-area video {
+  width: 50%;
+  height: 120px;
+  background: #000;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Mobile: overlay second video */
+@media (max-width: 768px) {
+  .video-area {
+    position: relative;
+    height: 160px;
+  }
+
+  #localVideo {
+    width: 100%;
+    height: 100%;
+  }
+
+  #remoteVideo {
+    position: absolute;
+    width: 35%;
+    height: 45%;
+    bottom: 8px;
+    right: 8px;
+    border: 2px solid #fff;
+  }
+}
+
+/* Push messages down so videos don't overlap */
+.chat-messages {
+  margin-top: 10px;
+}
+
     </style>
 </head>
 
@@ -493,6 +537,12 @@ ul {
   </div>
 
     <div class="chatbox-top">
+		<!-- ===== Video Area (Top Fixed) ===== -->
+<div class="video-area">
+  <video id="localVideo" autoplay muted playsinline></video>
+  <video id="remoteVideo" autoplay playsinline></video>
+</div>
+
       <div class="chatbox-avatar">
         <img src="https://i.pravatar.cc/150">
       </div>
@@ -575,6 +625,22 @@ ul {
     }
   });
 </script>
+	<script>
+(async function initLocalVideo() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+
+    document.getElementById("localVideo").srcObject = stream;
+  } catch (err) {
+    console.warn("Camera access denied or unavailable", err);
+  }
+})();
+</script>
+
 
 </body>
 </html>
+
