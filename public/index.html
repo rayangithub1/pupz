@@ -4,452 +4,224 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Welcome to Omiggle</title>
-
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
 
   <style>
+    :root {
+      --bg: #ffffff;
+      --text: #222;
+      --bubble-bg: #ffffff;
+      --nav-bg: rgba(255, 255, 255, 0.95);
+      --footer-bg: #00000086;
+    }
+
+    /* DARK MODE VARIABLES */
+    .dark-mode {
+      --bg: #121212;
+      --text: #f1f1f1;
+      --bubble-bg: #1e1e1e;
+      --nav-bg: rgba(20, 20, 20, 0.95);
+      --footer-bg: #000000cc;
+    }
+
+    /* GLOBAL */
     html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f9f9f9;
-  overflow-x: hidden;
-  color: #333;
-}
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s, color 0.3s;
+    }
 
-/* === FLOATING LIPS BACKGROUND === */
-.logo-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-  opacity: 0.15;
-}
+    /* Background */
+    body.light-bg {
+      background: url('bg-main.png') no-repeat center center fixed;
+      background-size: cover;
+    }
 
-.logo {
-  position: absolute;
-  opacity: 1;
-  animation: fall linear infinite;
-}
+    /* NAVBAR */
+    .navbar {
+      background-color: var(--nav-bg);
+      padding: 0.7rem 1rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.logo-inner {
-  width: 100%;
-  height: 100%;
-  background-image: url('heart.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  animation: rotate 8s linear infinite, resize 4s ease-in-out infinite;
-}
+    .navbar-brand img {
+      height: 40px;
+      margin-right: 10px;
+    }
 
-@keyframes fall {
-  0%   { transform: translateY(-150px); }
-  100% { transform: translateY(110vh); }
-}
+    /* Dark/Light toggle button */
+    .toggle-btn {
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 22px;
+      margin-left: 10px;
+      color: var(--text);
+      transition: 0.3s;
+    }
 
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
 
-@keyframes resize {
-  0%   { transform: scale(0.7); }
-  50%  { transform: scale(1.4); }
-  100% { transform: scale(0.7); }
-}
+    .speech-bubble {
+      background: var(--bubble-bg);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      max-width: 450px;
+      width: 100%;
+      transition: background 0.3s;
+    }
 
-/* === MAIN CONTENT === */
-.main-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  min-height: calc(100vh - 140px);
-  padding: 2rem 0;
-  position: relative;
-  z-index: 2;
-  flex-wrap: wrap;
-}
+    /* BUTTONS */
+    .btn-primary, .btn-info {
+      width: 100%;
+      margin-bottom: 10px;
+    }
 
-.speech-bubble {
-  background: #fff;
-  color: #333;
-  border-radius: 20px;
-  padding: 2rem;
-  text-align: center;
-  width: 400px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  border: 2px solid #ff6b6b;
-  margin: 10px;
-}
+    .checkbox-text {
+      font-size: 12px;
+      color: var(--text);
+      text-align: left;
+      margin-top: 10px;
+    }
 
-/* NAVBAR + FOOTER */
-.navbar {
-  position: relative;
-  z-index: 2;
-  background: transparent;
-  padding: 0;
-}
+    .checkbox-text a {
+      color: #4aa3ff;
+      text-decoration: underline;
+    }
 
-.navbar-brand img {
-  height: 40px;
-  margin-top: 10px;
-}
+    /* FOOTER */
+    .footer-promo {
+      background: var(--footer-bg);
+      color: #fff;
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+    }
 
-.footer-promo {
-  color: #333;
-  text-align: center;
-  padding: 1rem;
-  position: relative;
-  z-index: 2;
-}
+    .footer-promo button {
+      background: #f26ca7;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
 
-.footer-promo button {
-  background: #ff6b6b;
-  border: none;
-  padding: 5px 10px;
-  color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.random-number {
-  display: none;
-  font-weight: bold;
-  color: #ff4d4d;
-  margin-left: 15px;
-  font-size: 40px;
-}
-
-@media (max-width: 900px) {
-  .main-wrapper {
-    flex-direction: column;
-    align-items: center;
-  }
-  .speech-bubble {
-    width: 90%;
-  }
-}
-
-/* === EXTRA SECTIONS === */
-.extra-section {
-  position: relative;
-  z-index: 2;
-  padding: 4rem 1rem;
-  color: #333;
-}
-
-.section-title {
-  text-align: center;
-  font-size: 28px;
-  margin-bottom: 2.5rem;
-  color: #ff6b6b;
-  font-weight: 600;
-}
-
-.info-card {
-  background: #fff;
-  border: 1px solid #ff6b6b;
-  border-radius: 18px;
-  padding: 1.8rem;
-  height: 100%;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.info-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 35px rgba(255,107,107,0.2);
-}
-
-.info-card h5 {
-  color: #ff6b6b;
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-
-.info-card p {
-  font-size: 14px;
-  opacity: 0.9;
-  line-height: 1.6;
-}
-
-/* Divider glow */
-.section-divider {
-  height: 1px;
-  width: 120px;
-  margin: 0 auto 40px;
-  background: linear-gradient(90deg, transparent, #ff6b6b, transparent);
-}
-
-/* === MAIN FOOTER === */
-.site-footer {
-  position: relative;
-  z-index: 2;
-  background: #f5f5f5;
-  border-top: 1px solid #ff6b6b;
-  padding: 3rem 1rem 1.5rem;
-  color: #555;
-}
-
-.footer-title {
-  color: #ff6b6b;
-  font-weight: 600;
-  margin-bottom: 15px;
-  font-size: 18px;
-}
-
-.footer-links a {
-  display: block;
-  color: #777;
-  font-size: 14px;
-  margin-bottom: 8px;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.footer-links a:hover {
-  color: #ff6b6b;
-}
-
-.footer-desc {
-  font-size: 14px;
-  line-height: 1.7;
-  opacity: 0.85;
-}
-
-.footer-bottom {
-  text-align: center;
-  border-top: 1px solid rgba(255, 107, 107, 0.25);
-  margin-top: 2rem;
-  padding-top: 1rem;
-  font-size: 13px;
-  color: #888;
-}
-
-.footer-badge {
-  display: inline-block;
-  background: #ff6b6b;
-  color: #fff;
-  font-size: 12px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  margin-top: 10px;
-}
-
+    /* ONLINE NUMBER */
+    .random-number {
+      display: none;
+      font-weight: bold;
+      color: grey;
+      margin-left: 15px;
+      font-size: 20px;
+    }
   </style>
 </head>
+<body class="light-bg">
 
-<body>
-
-  <!-- FLOATING LIPS BACKGROUND -->
-  <div class="logo-container" id="logoContainer"></div>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-light px-3">
+  <!-- NAVBAR -->
+  <nav class="navbar">
     <a class="navbar-brand" href="#">
-      <img src="logo-main.png" alt="Logo">
+      <img src="logo-main.png" alt="Logo" />
     </a>
-    <span class="random-number" id="randomNumber"></span>
+
+    <div style="display: flex; align-items: center;">
+      <span class="random-number" id="randomNumber"></span>
+
+      <!-- Dark/Light Toggle -->
+      <button class="toggle-btn" id="themeToggle">🌙</button>
+    </div>
   </nav>
 
-  <!-- MAIN CONTENT -->
-  <div class="main-wrapper">
+  <!-- MAIN CENTERED CONTENT -->
+  <div class="main-content">
     <div class="speech-bubble">
-      <h2>Random Stranger Chat</h2>
-      <p>Talk to strangers and share pictures and memories for free!</p>
+      <h2>Random Text Chat Roulette</h2>
+      <p>Talk to strangers!</p>
 
-      <input type="text" id="usernameInput" class="form-control mb-3" placeholder="Enter your name">
+      <input type="text" id="usernameInput" class="form-control mb-3" placeholder="Enter your name"/>
 
-      <button class="btn btn-primary w-100 mb-2" style="background-color: #CF274E; border-color:white; color:white;" onclick="startChat('text')">Start Text Chat</button>
-      <!--button class="btn btn-info w-100" onclick="startChat('video')">Start Video Chat</button-->
+      <button class="btn btn-primary" onclick="startChat('text')">Start Text Chat</button>
 
-      <div style="font-size:12px; text-align:left; margin-top:10px;">
-        <input type="checkbox" id="tosCheck">
-        I confirm I am 18+ & I agree to the 
+      <div class="checkbox-text">
+        <input type="checkbox" id="tosCheck" />
+        I confirm I have read and agree to the 
         <a href="#">Community Guidelines</a> and 
-        <a href="#">Terms of Service</a>.
+        <a href="#">Terms of Service</a>.<br />
+        I certify I am at least 18 years old.
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
+  <!-- FOOTER PROMO -->
   <div class="footer-promo">
-    <strong>Talk on the official Girls Roulette (18+)</strong><br>
-    🌟 Free! &nbsp; 👧 Girls on Cam &nbsp; 🔞 Adults Only <br>
+    <strong>Talk on the official Girls Roulette (18+)</strong><br/>
+    🌟 It’s Free! &nbsp;&nbsp;👧 Girls on Cam &nbsp;&nbsp;🔞 Adults Only <br/>
     <button>CONTINUE TO GIRLS ROULETTE</button>
   </div>
-  <section class="extra-section" id="safety">
-  <h3 class="section-title">Safety & Precautions</h3>
-  <div class="section-divider"></div>
-
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4 mb-4">
-        <div class="info-card">
-          <h5>Protect Your Privacy</h5>
-          <p>
-            Never share personal details such as your phone number, address,
-            passwords, or financial information with strangers.
-          </p>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-4">
-        <div class="info-card">
-          <h5>Disconnect Instantly</h5>
-          <p>
-            If you feel uncomfortable or notice inappropriate behavior,
-            disconnect immediately. Your safety comes first.
-          </p>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-4">
-        <div class="info-card">
-          <h5>Adults Only</h5>
-          <p>
-            This platform is strictly for users aged 18 and above.
-            Misrepresentation of age is not permitted.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="extra-section" id="terms">
-  <h3 class="section-title">Terms & Community Rules</h3>
-  <div class="section-divider"></div>
-
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6 mb-4">
-        <div class="info-card">
-          <h5>Acceptable Use</h5>
-          <p>
-            Harassment, hate speech, illegal activity, explicit content,
-            or abusive behavior is strictly prohibited.
-          </p>
-        </div>
-      </div>
-
-      <div class="col-md-6 mb-4">
-        <div class="info-card">
-          <h5>Moderation Policy</h5>
-          <p>
-            We reserve the right to monitor activity and permanently ban users
-            who violate community guidelines or platform rules.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-  <footer class="site-footer">
-  <div class="container">
-    <div class="row">
-
-      <!-- ABOUT -->
-      <div class="col-md-4 mb-4">
-        <div class="footer-title">About Omiggle</div>
-        <p class="footer-desc">
-          Omiggle is a random chat platform where adults can meet new people
-          instantly through text and video chat. Use responsibly and stay safe.
-        </p>
-        <span class="footer-badge">18+ ADULTS ONLY</span>
-      </div>
-
-      <!-- QUICK LINKS -->
-      <div class="col-md-4 mb-4">
-        <div class="footer-title">Quick Links</div>
-        <div class="footer-links">
-          <a href="#safety">Safety & Precautions</a>
-          <a href="#terms">Terms & Conditions</a>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Community Guidelines</a>
-        </div>
-      </div>
-
-      <!-- DISCLAIMER -->
-      <div class="col-md-4 mb-4">
-        <div class="footer-title">Disclaimer</div>
-        <p class="footer-desc">
-          Omiggle does not store chat content. Users are solely responsible
-          for their interactions. Any misuse may result in a permanent ban.
-        </p>
-      </div>
-
-    </div>
-
-    <div class="footer-bottom">
-      © <span id="year"></span> Omiggle. All rights reserved.
-    </div>
-  </div>
-</footer>
-
-
 
   <script>
-    // Redirect user to separate chat pages
+    /* START CHAT */
     function startChat(mode) {
-  const name = document.getElementById('usernameInput').value.trim();
-  const tosChecked = document.getElementById('tosCheck').checked;
+      const name = document.getElementById('usernameInput').value.trim();
+      const tosChecked = document.getElementById('tosCheck').checked;
 
-  if (!name) return alert('Please enter your name!');
-  if (!tosChecked) return alert('Please confirm the terms.');
+      if (!name) return alert('Please enter your name!');
+      if (!tosChecked) return alert('Please confirm the terms.');
 
-  localStorage.setItem('username', name);
+      localStorage.setItem('username', name);
+      window.location.href = 'text.html?mode=text';
+    }
 
-  if (mode === 'video') {
-    window.location.href = 'video.html?mode=video';
-  } else {
-    window.location.href = 'text.html?mode=text';
-  }
-}
-
-    // Generate random number in navbar
+    /* RANDOM NUMBER */
     const min = 4000, max = 4500;
-    document.getElementById("randomNumber").textContent =
+    document.getElementById('randomNumber').textContent =
       "+" + (Math.floor(Math.random() * (max - min + 1)) + min);
 
-    // Floating lips background
-    const container = document.getElementById("logoContainer");
-    for (let i = 0; i < 35; i++) {
-      const lip = document.createElement("div");
-      lip.classList.add("logo");
-      const inner = document.createElement("div");
-      inner.classList.add("logo-inner");
-      lip.appendChild(inner);
+    /* DARK / LIGHT MODE TOGGLE */
+    const toggleBtn = document.getElementById("themeToggle");
 
-      lip.style.left = Math.random() * 100 + "%";
-      lip.style.animationDuration = (8 + Math.random() * 6) + "s";
-      lip.style.animationDelay = (-Math.random() * 10) + "s";
-
-      const size = 40 + Math.random() * 50;
-      lip.style.width = size + "px";
-      lip.style.height = size + "px";
-
-      container.appendChild(lip);
+    function applyTheme(theme) {
+      if (theme === "dark") {
+        document.body.classList.add("dark-mode");
+        document.body.classList.remove("light-bg");
+        toggleBtn.textContent = "☀️";
+      } else {
+        document.body.classList.remove("dark-mode");
+        document.body.classList.add("light-bg");
+        toggleBtn.textContent = "🌙";
+      }
     }
-    document.getElementById("year").textContent = new Date().getFullYear();
 
+    toggleBtn.addEventListener("click", () => {
+      const current = localStorage.getItem("theme") || "light";
+      const newTheme = current === "light" ? "dark" : "light";
+      localStorage.setItem("theme", newTheme);
+      applyTheme(newTheme);
+    });
+
+    /* Load saved theme */
+    applyTheme(localStorage.getItem("theme") || "light");
   </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
 
 
