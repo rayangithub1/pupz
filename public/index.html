@@ -285,20 +285,16 @@
   </div>
 
   <script>
-    // Redirect user to separate chat pages
+    /* START CHAT */
     function startChat(mode) {
       const name = document.getElementById('usernameInput').value.trim();
       const tosChecked = document.getElementById('tosCheck').checked;
 
-      if (!name) return alert("Please enter your name!");
-      if (!tosChecked) return alert("Please confirm terms & age.");
+      if (!name) return alert('Please enter your name!');
+      if (!tosChecked) return alert('Please confirm the terms.');
 
       localStorage.setItem('username', name);
-      if (mode === "text") {
-        window.location.href = "text.html";
-      } else if (mode === "video") {
-        window.location.href = "video.html";
-      }
+      window.location.href = 'text.html?mode=text';
     }
 
     // Generate random number in navbar
@@ -329,4 +325,3 @@
 
 </body>
 </html>
-
