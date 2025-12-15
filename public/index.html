@@ -180,16 +180,23 @@
 
   <script>
     /* START CHAT */
-    function startChat(mode) {
-      const name = document.getElementById('usernameInput').value.trim();
-      const tosChecked = document.getElementById('tosCheck').checked;
+    /* START CHAT */
+function startChat(mode) {
+  const name = document.getElementById('usernameInput').value.trim();
+  const tosChecked = document.getElementById('tosCheck').checked;
 
-      if (!name) return alert('Please enter your name!');
-      if (!tosChecked) return alert('Please confirm the terms.');
+  if (!name) return alert('Please enter your name!');
+  if (!tosChecked) return alert('Please confirm the terms.');
 
-      localStorage.setItem('username', name);
-      window.location.href = 'text.html?mode=text';
-    }
+  localStorage.setItem('username', name);
+
+  if (mode === 'video') {
+    window.location.href = 'video.html?mode=video';
+  } else {
+    window.location.href = 'text.html?mode=text';
+  }
+}
+
 
     /* RANDOM NUMBER */
     const min = 4000, max = 4500;
@@ -224,6 +231,7 @@
 
 </body>
 </html>
+
 
 
 
