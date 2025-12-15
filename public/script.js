@@ -2,7 +2,6 @@ let socket;
 let username = '';
 let localStream, peerConnection;
 const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-let offlineTimeout = null;
 
 // Get username and mode from storage and query
 const urlParams = new URLSearchParams(window.location.search);
@@ -70,41 +69,6 @@ function initializeChatHandlers() {
         });
     }
 
-    socket.on('partnerFound', async () => {
-
-  // ✅ Cancel offline auto-disconnect
-  if (offlineTimeout) {
-    clearTimeout(offlineTimeout);
-    offlineTimeout = null;
-  }
-
-  appendMessage('You are now connected with a partner!', 'system');
-
-  document.getElementById('sendButton').disabled = false;
-  document.querySelector('.chat-actions').classList.remove('hidden');
-
-  peerConnection = new RTCPeerConnection(config);
-
-  localStream.getTracks().forEach(track => {
-    peerConnection.addTrack(track, localStream);
-  });
-
-  peerConnection.ontrack = (event) => {
-    document.getElementById('remoteVideo').srcObject = event.streams[0];
-  };
-
-  peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-      socket.emit('iceCandidate', event.candidate);
-    }
-  };
-
-  const offer = await peerConnection.createOffer();
-  await peerConnection.setLocalDescription(offer);
-  socket.emit('videoOffer', offer);
-});
-
-    
     socket.on('videoOffer', async (offer) => {
         document.getElementById('videoContainer').style.display = 'block';
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -193,48 +157,53 @@ function initializeChatHandlers() {
 })
 
 
+    socket.on('partnerFound', async () => {
+    appendMessage('You are now connected with a partner!', 'system');
+
+    document.getElementById('sendButton').disabled = false;
+    document.querySelector('.chat-actions').classList.remove('hidden')
+
+    // Create peer connection and send offer
+    peerConnection = new RTCPeerConnection(config);
+
+    localStream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
+    });
+
+    peerConnection.ontrack = (event) => {
+        document.getElementById('remoteVideo').srcObject = event.streams[0];
+    };
+
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            socket.emit('iceCandidate', event.candidate);
+        }
+    };
+
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    socket.emit('videoOffer', offer);
+});
+
 
     socket.on('message', ({ text, name }) => {
         appendMessage(text, 'partner', name);
     });
 
-   socket.on('partnerDisconnected', () => {
-  appendMessage('Your partner has disconnected.', 'system');
+    socket.on('partnerDisconnected', () => {
+    appendMessage('Your partner has disconnected.', 'system');
+    document.getElementById('sendButton').disabled = true;
+    document.querySelector('.chat-actions').classList.add('hidden')
 
-  // Disable chat UI
-  document.getElementById('sendButton').disabled = true;
-  document.querySelector('.chat-actions').classList.add('hidden');
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+    }
 
-  // Cancel offline auto-disconnect timer if running
-  if (offlineTimeout) {
-    clearTimeout(offlineTimeout);
-    offlineTimeout = null;
-  }
-
-  // Reset disconnect button → START
-  const disconnectButton = document.getElementById('disconnectButton');
-  disconnectButton.textContent = 'Start';
-  disconnectButton.classList.remove('confirm');
-  disconnectButton.classList.add('start');
-  disconnectState = 'start';
-
-  // Close peer connection safely
-  if (peerConnection) {
-    peerConnection.getSenders().forEach(sender => {
-      if (sender.track) sender.track.stop();
-    });
-    peerConnection.close();
-    peerConnection = null;
-  }
-
-  // Clear remote video
-  const remoteVideo = document.getElementById('remoteVideo');
-  if (remoteVideo) {
-    remoteVideo.srcObject = null;
-  }
+    if (document.getElementById('remoteVideo')) {
+        document.getElementById('remoteVideo').srcObject = null;
+    }
 });
-
-
 
 
     document.getElementById('sendButton').addEventListener('click', () => {
@@ -382,3 +351,4 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
