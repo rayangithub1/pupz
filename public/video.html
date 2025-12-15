@@ -1,658 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat App</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <script src="/socket.io/socket.io.js"></script>
-    <style>
-        /* ===== Reset & Base ===== */
-@import url('https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i');
-
-* {
-	margin: 0;
-	padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-	font-family: 'Lato', sans-serif;
-	font-size: 14px;
-	color: #999999;
-	word-wrap: break-word;
-}
-
-ul {
-	list-style: none;
-}
-
-.chatbox-holder {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: flex-end;
-  height: 0;
-}
-
-.chatbox {
-  width: 400px;
-  height: 400px;
-  margin: 0 20px 0 0;
-  position: relative;
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, .2);
-  display: flex;
-  flex-flow: column;
-  border-radius: 10px 10px 0 0;
-  background: white;
-  bottom: 0;
-  transition: .1s ease-out;
-}
-
-.chatbox-top {
-  position: relative;
-  display: flex;
-  padding: 10px 0;
-  border-radius: 10px 10px 0 0;
-  background: rgba(0, 0, 0, .05);
-}
-
-.chatbox-icons {
-  padding: 0 10px 0 0;
-  display: flex;
-  position: relative;
-}
-
-.chatbox-icons .fa {
-  background: rgba(220, 0, 0, .6);
-  padding: 3px 5px;
-  margin: 0 0 0 3px;
-  color: white;
-  border-radius: 0 5px 0 5px;
-  transition: 0.3s;
-}
-
-.chatbox-icons .fa:hover {
-  border-radius: 5px 0 5px 0;
-  background: rgba(220, 0, 0, 1);
-}
-
-.chatbox-icons a, .chatbox-icons a:link, .chatbox-icons a:visited {
-  color: white;
-}
-
-.chat-partner-name, .chat-group-name {
-  flex: 1;
-  padding: 0 0 0 95px;
-  font-size: 15px;
-  font-weight: bold;
-  color: #30649c;
-  text-shadow: 1px 1px 0 white;
-  transition: .1s ease-out;
-}
-
-.status {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: inset 0 0 3px 0 rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background: #cacaca;
-  margin: 0 3px 0 0;
-}
-
-.online {
-  background: #b7fb00;
-}
-
-.away {
-  background: #ffae00;
-}
-
-.donot-disturb {
-  background: #ff4343;
-}
-
-.chatbox-avatar {
-  width: 80px;
-  height: 80px;
-  overflow: hidden;
-  border-radius: 50%;
-  background: white;
-  padding: 3px;
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, .2);
-  position: absolute;
-  transition: .1s ease-out;
-  bottom: 0;
-  left: 6px;
-}
-
-.chatbox-avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-}
-
-.chat-messages {
-  border-top: 1px solid rgba(0, 0, 0, .05);
-  padding: 10px;
-  overflow: auto;
-  display: flex;
-  flex-flow: row wrap;
-  align-content: flex-start;
-  flex: 1;
-}
-
-.message-box-holder {
-  width: 100%;
-  margin: 0 0 15px;
-  display: flex;
-  flex-flow: column;
-  align-items: flex-end;
-}
-
-.message-sender {
-  font-size: 12px;
-  margin: 0 0 15px;
-  color: #30649c;
-  align-self: flex-start;
-}
-
-.message-sender a, .message-sender a:link, .message-sender a:visited, .chat-partner-name a, .chat-partner-name a:link, .chat-partner-name a:visited {
-  color: #30649c;
-  text-decoration: none;
-}
-
-.message-box {
-  padding: 6px 10px;
-  border-radius: 6px 0 6px 0;
-  position: relative;
-  background: rgba(100, 170, 0, .1);
-  border: 2px solid rgba(100, 170, 0, .1);
-  color: #6c6c6c;
-  font-size: 12px;
-}
-
-.message-box:after {
-  content: "";
-  position: absolute;
-  border: 10px solid transparent;
-  border-top: 10px solid rgba(100, 170, 0, .2);
-  border-right: none;
-  bottom: -22px;
-  right: 10px;
-}
-
-.message-partner {
-  background: rgba(0, 114, 135, .1);
-  border: 2px solid rgba(0, 114, 135, .1);
-  align-self: flex-start;
-}
-
-.message-partner:after {
-  right: auto;
-  bottom: auto;
-  top: -22px;
-  left: 9px;
-  border: 10px solid transparent;
-  border-bottom: 10px solid rgba(0, 114, 135, .2);
-  border-left: none;
-}
-
-.chat-input-holder {
-  display: flex;
-  border-top: 1px solid rgba(0, 0, 0, .1);
-}
-
-.chat-input {
-  resize: none;
-  padding: 5px 10px;
-  height: 40px;
-  font-family: 'Lato', sans-serif;
-	font-size: 14px;
-  color: #999999;
-  flex: 1;
-  border: none;
-  background: rgba(0, 0, 0, .05);
-   border-bottom: 1px solid rgba(0, 0, 0, .05);
-}
-
-.chat-input:focus, .message-send:focus {
-  outline: none;
-}
-
-.message-send::-moz-focus-inner {
-	border:0;
-	padding:0;
-}
-
-.message-send {
-  -webkit-appearance: none;
-  background: #9cc900;
-  background: -moz-linear-gradient(180deg, #00d8ff, #00b5d6);
-  background: -webkit-linear-gradient(180deg, #00d8ff, #00b5d6);
-  background: -o-linear-gradient(180deg, #00d8ff, #00b5d6);
-  background: -ms-linear-gradient(180deg, #00d8ff, #00b5d6);
-  background: linear-gradient(180deg, #00d8ff, #00b5d6);
-  color: white;
-  font-size: 12px;
-  padding: 0 15px;
-  border: none;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
-}
-
-.attachment-panel {
-  padding: 3px 10px;
-  text-align: right;
-}
-
-.attachment-panel a, .attachment-panel a:link, .attachment-panel a:visited {
-  margin: 0 0 0 7px;
-  text-decoration: none;
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.chatbox-min {
-  margin-bottom: -362px;
-/*   height: 46px; */
-}
-
-.chatbox-min .chatbox-avatar {
-  width: 60px;
-  height: 60px;
-}
-
-.chatbox-min .chat-partner-name, .chatbox-min .chat-group-name {
-  padding: 0 0 0 75px;
-}
-
-.settings-popup {
-  background: white;
-	border-radius: 20px/10px;
-	box-shadow: 0 3px 5px 0 rgba(0, 0, 0, .2);
-  font-size: 13px;
-	opacity: 0;
-	padding: 10px 0;
-	position: absolute;
-	right: 0;
-	text-align: left;
-	top: 33px;
-	transition: .15s;
-	transform: scale(1, 0);
-	transform-origin: 50% 0;
-	width: 120px;
-  z-index: 2;
-  border-top: 1px solid rgba(0, 0, 0, .2);
-  border-bottom: 2px solid rgba(0, 0, 0, .3);
-}
-
-.settings-popup:after, .settings-popup:before {
-  border: 7px solid transparent;
-	border-bottom: 7px solid white;
-	border-top: none;	
-	content: "";
-	position: absolute;
-	left: 45px;
-	top: -10px;
-  border-top: 3px solid rgba(0, 0, 0, .2);
-}
-
-.settings-popup:before {
-  border-bottom: 7px solid rgba(0, 0, 0, .25);
-  top: -11px;
-}
-
-.settings-popup:after {
-  border-top-color: transparent;
-}
-
-#chkSettings {
-	display: none;
-}
-
-#chkSettings:checked + .settings-popup {
-	opacity: 1;
-	transform: scale(1, 1);
-}
-
-.settings-popup ul li a, .settings-popup ul li a:link, .settings-popup ul li a:visited {
-  color: #999;
-  text-decoration: none;
-  display: block;
-  padding: 5px 10px;
-}
-
-.settings-popup ul li a:hover {
-  background: rgba(0, 0, 0, .05);
-}
-
-/* ===== Desktop: center chatbox ===== */
-@media (min-width: 769px) {
-  .chatbox-holder {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    right: auto;
-    bottom: auto;
-    transform: translate(-50%, -50%);
-    height: auto;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .chatbox {
-    margin: 0;
-  }
-}
-
-
-/* ===== Mobile: full screen chat ===== */
-@media (max-width: 768px) {
-  .chatbox-holder {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 100%;
-    transform: none;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .chatbox {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    border-radius: 0;
-  }
-
-  .chatbox-top {
-    border-radius: 0;
-  }
-
-  .chatbox-avatar {
-    width: 50px;
-    height: 50px;
-  }
-
-  .chat-partner-name {
-    padding-left: 70px;
-    font-size: 14px;
-  }
-
-  .chat-input {
-    height: 50px;
-    font-size: 16px; /* better typing on mobile */
-  }
-
-  .chat-messages {
-    padding-bottom: 80px; /* keyboard safe */
-  }
-}
-
-		/* ===== Site logo above chat header ===== */
-.chatbox-site-logo {
-  text-align: center;
-  padding: 10px 0;
-  background: #fff;
-  border-radius: 10px 10px 0 0;
-}
-
-.chatbox-site-logo img {
-  height: 40px;
-  width: auto;
-}
-
-/* Adjust header radius since logo is above */
-.chatbox-top {
-  border-radius: 0;
-}
-
-		@media (max-width: 768px) {
-  .chatbox-site-logo img {
-    height: 34px;
-  }
-}
-
-/* ===== Chat action buttons ===== */
-.chat-actions {
-  display: flex;
-  gap: 10px;
-  padding: 8px;
-  border-top: 1px solid rgba(0,0,0,.1);
-  background: #f7f7f7;
-}
-
-.chat-action-btn {
-  flex: 1;
-  padding: 6px 10px;
-  font-size: 12px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.chat-action-btn.disconnect {
-  background: #dc3545;
-  color: #fff;
-}
-
-.chat-action-btn.photo {
-  background: #6c757d;
-  color: #fff;
-}
-
-.chat-action-btn:hover {
-  opacity: 0.9;
-}
-
-		/* ===== Disconnect button animations ===== */
-.chat-action-btn.disconnect {
-  transition: all 0.25s ease;
-}
-
-/* Confirm state (danger pulse) */
-.chat-action-btn.disconnect.confirm {
-  animation: pulseRed 1s infinite;
-}
-
-/* Start / searching state */
-.chat-action-btn.disconnect.start {
-  background: #28a745;
-  animation: glowGreen 1.2s infinite;
-}
-
-@keyframes pulseRed {
-  0% { box-shadow: 0 0 0 0 rgba(220,53,69,.6); }
-  70% { box-shadow: 0 0 0 10px rgba(220,53,69,0); }
-  100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
-}
-
-@keyframes glowGreen {
-  0% { box-shadow: 0 0 5px rgba(40,167,69,.4); }
-  50% { box-shadow: 0 0 15px rgba(40,167,69,.8); }
-  100% { box-shadow: 0 0 5px rgba(40,167,69,.4); }
-}
-
-.chat-actions.hidden {
-  display: none;
-}
-
-      /* ===== Video Boxes ===== */
-.video-area {
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-  background: #111;
-  border-top: 1px solid rgba(0,0,0,.2);
-}
-
-.video-area video {
-  width: 50%;
-  height: 120px;
-  background: #000;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-/* Mobile: overlay second video */
-@media (max-width: 768px) {
-  .video-area {
-    position: relative;
-    height: 160px;
-  }
-
-  #localVideo {
-    width: 100%;
-    height: 100%;
-  }
-
-  #remoteVideo {
-    position: absolute;
-    width: 35%;
-    height: 45%;
-    bottom: 8px;
-    right: 8px;
-    border: 2px solid #fff;
-  }
-}
-
-/* Push messages down so videos don't overlap */
-.chat-messages {
-  margin-top: 10px;
-}
-
-
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Chat</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="style.css" />
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      background: #f2f2f2;
+    }
+
+    .page-wrapper {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ===== Video Panel ===== */
+    .video-panel {
+      width: 45%;
+      background: #000;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #remoteVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #localVideo {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      width: 160px;
+      height: 120px;
+      border-radius: 8px;
+      border: 2px solid #fff;
+      object-fit: cover;
+      background: #000;
+    }
+
+    /* ===== Chat Panel ===== */
+    .chat-panel {
+      width: 55%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #eaeaea;
+    }
+
+    /* Reuse chatbox exactly */
+    .chatbox-holder {
+      position: relative;
+      height: auto;
+    }
+
+    .chatbox {
+      height: 95vh;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .page-wrapper {
+        flex-direction: column;
+      }
+
+      .video-panel {
+        width: 100%;
+        height: 40%;
+      }
+
+      .chat-panel {
+        width: 100%;
+        height: 60%;
+      }
+
+      .chatbox {
+        height: 100%;
+        border-radius: 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <div class="chatbox-holder">
-  <div class="chatbox">
-    
-    <div class="chatbox-site-logo">
-    <img src="logo-main.png" alt="Site Logo">
+
+<div class="page-wrapper">
+
+  <!-- VIDEO AREA -->
+  <div class="video-panel">
+    <video id="remoteVideo" autoplay playsinline></video>
+    <video id="localVideo" autoplay muted playsinline></video>
   </div>
 
-    <div class="chatbox-top">
-      <!-- ===== Video Area (Top Fixed) ===== -->
-<div class="video-area">
-  <video id="localVideo" autoplay muted playsinline></video>
-  <video id="remoteVideo" autoplay playsinline></video>
-</div>
+  <!-- CHAT AREA (REUSED) -->
+  <div class="chat-panel">
+    <div class="chatbox-holder">
+      <div class="chatbox">
 
-      <div class="chatbox-avatar">
-        <img src="https://i.pravatar.cc/150">
-      </div>
-      <div class="chat-partner-name">
-        <span class="status online"></span>
-        Stranger
-      </div>
-      <div class="chatbox-icons">
-        <!--a href="javascript:void(0);" class="fa fa-minus"></a-->
-<a href="javascript:void(0);" class="fa fa-close" id="closeChat"></a>
+        <!-- LOGO -->
+        <div class="chatbox-site-logo">
+          <img src="logo-main.png" alt="Site Logo">
+        </div>
+
+        <!-- HEADER -->
+        <div class="chatbox-top">
+          <div class="chatbox-avatar">
+            <img src="https://i.pravatar.cc/150">
+          </div>
+          <div class="chat-partner-name">
+            <span class="status online"></span>
+            Stranger (Video)
+          </div>
+          <div class="chatbox-icons">
+            <a href="javascript:void(0);" class="fa fa-close" id="closeChat"></a>
+          </div>
+        </div>
+
+        <!-- MESSAGES -->
+        <div class="chat-messages" id="messages"></div>
+
+        <!-- ACTIONS -->
+        <div class="chat-actions">
+          <button id="disconnectButton" class="chat-action-btn disconnect">
+            Disconnect
+          </button>
+
+          <button id="requestPhotoButton" class="chat-action-btn photo">
+            📷 Photo
+          </button>
+        </div>
+
+        <!-- INPUT -->
+        <div class="chat-input-holder">
+          <textarea
+            class="chat-input"
+            id="messageInput"
+            placeholder="Type a message..."
+          ></textarea>
+
+          <input
+            type="button"
+            value="Send"
+            class="message-send"
+            id="sendButton"
+          />
+        </div>
+
+        <input type="file" id="hiddenFileInput" accept="image/*" hidden>
+
       </div>
     </div>
-
-    <!-- IMPORTANT -->
-    <div class="chat-messages" id="messages"></div>
-
-	  <!-- Chat action buttons -->
-<div class="chat-actions">
-  <button id="disconnectButton" class="chat-action-btn disconnect">
-    Disconnect
-  </button>
-
-  <button id="requestPhotoButton" class="chat-action-btn photo">
-    📷 Photo
-  </button>
-</div>
-
-<input type="file" id="hiddenFileInput" accept="image/*" hidden>
-
-
-    <div class="chat-input-holder">
-      <textarea
-        class="chat-input"
-        id="messageInput"
-        placeholder="Type a message..."
-      ></textarea>
-
-      <input
-        type="button"
-        value="Send"
-        class="message-send"
-        id="sendButton"
-      />
-    </div>
-
-    <!-- hidden image input -->
-    <input type="file" id="hiddenFileInput" accept="image/*" hidden>
-
-    <!-- optional -->
-    <button id="requestPhotoButton" hidden></button>
-    <button id="disconnectButton" hidden></button>
-
   </div>
+
 </div>
 
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+/>
 
-  <!-- Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-  />
+<script src="script.js"></script>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="script.js"></script>
-	<script>
-  document.getElementById("closeChat").addEventListener("click", function () {
-    const confirmClose = confirm(
-      "Are you sure you want to leave this chat?\nYour conversation will be lost."
-    );
-
-    if (confirmClose) {
-      // OPTIONAL: notify server before leaving
-      if (typeof socket !== "undefined") {
-        socket.disconnect();
+<script>
+  document.getElementById("closeChat").addEventListener("click", () => {
+    if (confirm("Leave video chat?")) {
+      if (typeof cleanupAndDisconnect === "function") {
+        cleanupAndDisconnect();
       }
-
-      // Redirect to home page
       window.location.href = "/";
-      // or: window.location.href = "index.html";
     }
   });
 </script>
-  <script>
-(async function initLocalVideo() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: false
-    });
-
-    document.getElementById("localVideo").srcObject = stream;
-  } catch (err) {
-    console.warn("Camera access denied or unavailable", err);
-  }
-})();
-</script>
-
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
