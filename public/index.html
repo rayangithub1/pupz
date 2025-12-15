@@ -182,6 +182,61 @@
   margin: 0 auto 40px;
   background: linear-gradient(90deg, transparent, #7b0000, transparent);
 }
+    /* === MAIN FOOTER === */
+.site-footer {
+  position: relative;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.85);
+  border-top: 1px solid #7b0000;
+  padding: 3rem 1rem 1.5rem;
+  color: #ccc;
+}
+
+.footer-title {
+  color: #ff4d4d;
+  font-weight: 600;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.footer-links a {
+  display: block;
+  color: #bbb;
+  font-size: 14px;
+  margin-bottom: 8px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: #ff6b6b;
+}
+
+.footer-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  opacity: 0.85;
+}
+
+.footer-bottom {
+  text-align: center;
+  border-top: 1px solid rgba(255, 0, 0, 0.25);
+  margin-top: 2rem;
+  padding-top: 1rem;
+  font-size: 13px;
+  color: #888;
+}
+
+.footer-badge {
+  display: inline-block;
+  background: #7b0000;
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-top: 10px;
+}
+
 
   </style>
 </head>
@@ -291,6 +346,48 @@
     </div>
   </div>
 </section>
+  <footer class="site-footer">
+  <div class="container">
+    <div class="row">
+
+      <!-- ABOUT -->
+      <div class="col-md-4 mb-4">
+        <div class="footer-title">About Omiggle</div>
+        <p class="footer-desc">
+          Omiggle is a random chat platform where adults can meet new people
+          instantly through text and video chat. Use responsibly and stay safe.
+        </p>
+        <span class="footer-badge">18+ ADULTS ONLY</span>
+      </div>
+
+      <!-- QUICK LINKS -->
+      <div class="col-md-4 mb-4">
+        <div class="footer-title">Quick Links</div>
+        <div class="footer-links">
+          <a href="#safety">Safety & Precautions</a>
+          <a href="#terms">Terms & Conditions</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Community Guidelines</a>
+        </div>
+      </div>
+
+      <!-- DISCLAIMER -->
+      <div class="col-md-4 mb-4">
+        <div class="footer-title">Disclaimer</div>
+        <p class="footer-desc">
+          Omiggle does not store chat content. Users are solely responsible
+          for their interactions. Any misuse may result in a permanent ban.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      © <span id="year"></span> Omiggle. All rights reserved.
+    </div>
+  </div>
+</footer>
+
 
 
   <script>
@@ -334,10 +431,13 @@
 
       container.appendChild(lip);
     }
+    document.getElementById("year").textContent = new Date().getFullYear();
+
   </script>
 
 </body>
 </html>
+
 
 
 
