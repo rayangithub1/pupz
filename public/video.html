@@ -1,188 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Video Chat</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Chat</title>
 
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="/socket.io/socket.io.js"></script>
 
-  <script src="/socket.io/socket.io.js"></script>
+<style>
+/* ===== RESET ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Lato',sans-serif;
+  background:#eaeaea;
+  height:100vh;
+  overflow:hidden;
+}
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      background: #f2f2f2;
-    }
+/* ===== PAGE LAYOUT ===== */
+.page-wrapper{
+  display:flex;
+  height:100vh;
+}
 
-    .page-wrapper {
-      display: flex;
-      width: 100%;
-      height: 100%;
-    }
+/* ===== VIDEO PANEL ===== */
+.video-panel{
+  width:45%;
+  background:#000;
+  position:relative;
+}
 
-    /* ===== Video Panel ===== */
-    .video-panel {
-      width: 45%;
-      background: #000;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+#remoteVideo{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
 
-    #remoteVideo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+#localVideo{
+  position:absolute;
+  bottom:15px;
+  right:15px;
+  width:160px;
+  height:120px;
+  border-radius:8px;
+  border:2px solid #fff;
+  object-fit:cover;
+  background:#000;
+}
 
-    #localVideo {
-      position: absolute;
-      bottom: 15px;
-      right: 15px;
-      width: 160px;
-      height: 120px;
-      border-radius: 8px;
-      border: 2px solid #fff;
-      object-fit: cover;
-      background: #000;
-    }
+/* ===== CHAT PANEL ===== */
+.chat-panel{
+  width:55%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
 
-    /* ===== Chat Panel ===== */
-    .chat-panel {
-      width: 55%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #eaeaea;
-    }
+/* ===== CHATBOX ===== */
+.chatbox{
+  width:400px;
+  height:95vh;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  border-radius:10px;
+  box-shadow:0 0 8px rgba(0,0,0,.2);
+}
 
-    /* Reuse chatbox exactly */
-    .chatbox-holder {
-      position: relative;
-      height: auto;
-    }
+/* Logo */
+.chatbox-site-logo{
+  text-align:center;
+  padding:10px;
+}
+.chatbox-site-logo img{
+  height:38px;
+}
 
-    .chatbox {
-      height: 95vh;
-    }
+/* Header */
+.chatbox-top{
+  display:flex;
+  align-items:center;
+  padding:10px;
+  background:#f2f2f2;
+  position:relative;
+}
 
-    /* Mobile */
-    @media (max-width: 768px) {
-      .page-wrapper {
-        flex-direction: column;
-      }
+.chatbox-avatar{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  overflow:hidden;
+  margin-right:10px;
+}
+.chatbox-avatar img{
+  width:100%;
+  height:100%;
+}
 
-      .video-panel {
-        width: 100%;
-        height: 40%;
-      }
+.chat-partner-name{
+  flex:1;
+  font-weight:bold;
+  color:#30649c;
+}
 
-      .chat-panel {
-        width: 100%;
-        height: 60%;
-      }
+.chatbox-icons a{
+  color:#dc3545;
+  font-size:18px;
+}
 
-      .chatbox {
-        height: 100%;
-        border-radius: 0;
-      }
-    }
-  </style>
+/* Messages */
+.chat-messages{
+  flex:1;
+  padding:10px;
+  overflow-y:auto;
+}
+
+/* Message styles */
+.message-box-holder{
+  margin-bottom:12px;
+  display:flex;
+  flex-direction:column;
+}
+
+.message-box{
+  background:#e6f4ea;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:13px;
+  align-self:flex-end;
+}
+
+.message-partner{
+  background:#e3f2fd;
+  align-self:flex-start;
+}
+
+.message-sender{
+  font-size:11px;
+  color:#30649c;
+  margin-bottom:4px;
+}
+
+/* Actions */
+.chat-actions{
+  display:flex;
+  gap:8px;
+  padding:8px;
+  background:#f7f7f7;
+}
+
+.chat-action-btn{
+  flex:1;
+  padding:6px;
+  font-size:12px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+.disconnect{
+  background:#dc3545;
+  color:#fff;
+}
+
+.photo{
+  background:#6c757d;
+  color:#fff;
+}
+
+/* Input */
+.chat-input-holder{
+  display:flex;
+  border-top:1px solid #ddd;
+}
+
+.chat-input{
+  flex:1;
+  padding:8px;
+  border:none;
+  resize:none;
+}
+
+.message-send{
+  background:#00b5d6;
+  color:#fff;
+  border:none;
+  padding:0 15px;
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  .page-wrapper{
+    flex-direction:column;
+  }
+  .video-panel{
+    width:100%;
+    height:40%;
+  }
+  .chat-panel{
+    width:100%;
+    height:60%;
+  }
+  .chatbox{
+    width:100%;
+    height:100%;
+    border-radius:0;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <div class="page-wrapper">
 
-  <!-- VIDEO AREA -->
+  <!-- VIDEO -->
   <div class="video-panel">
     <video id="remoteVideo" autoplay playsinline></video>
     <video id="localVideo" autoplay muted playsinline></video>
   </div>
 
-  <!-- CHAT AREA (REUSED) -->
+  <!-- CHAT -->
   <div class="chat-panel">
-    <div class="chatbox-holder">
-      <div class="chatbox">
+    <div class="chatbox">
 
-        <!-- LOGO -->
-        <div class="chatbox-site-logo">
-          <img src="logo-main.png" alt="Site Logo">
-        </div>
-
-        <!-- HEADER -->
-        <div class="chatbox-top">
-          <div class="chatbox-avatar">
-            <img src="https://i.pravatar.cc/150">
-          </div>
-          <div class="chat-partner-name">
-            <span class="status online"></span>
-            Stranger (Video)
-          </div>
-          <div class="chatbox-icons">
-            <a href="javascript:void(0);" class="fa fa-close" id="closeChat"></a>
-          </div>
-        </div>
-
-        <!-- MESSAGES -->
-        <div class="chat-messages" id="messages"></div>
-
-        <!-- ACTIONS -->
-        <div class="chat-actions">
-          <button id="disconnectButton" class="chat-action-btn disconnect">
-            Disconnect
-          </button>
-
-          <button id="requestPhotoButton" class="chat-action-btn photo">
-            📷 Photo
-          </button>
-        </div>
-
-        <!-- INPUT -->
-        <div class="chat-input-holder">
-          <textarea
-            class="chat-input"
-            id="messageInput"
-            placeholder="Type a message..."
-          ></textarea>
-
-          <input
-            type="button"
-            value="Send"
-            class="message-send"
-            id="sendButton"
-          />
-        </div>
-
-        <input type="file" id="hiddenFileInput" accept="image/*" hidden>
-
+      <div class="chatbox-site-logo">
+        <img src="logo-main.png">
       </div>
+
+      <div class="chatbox-top">
+        <div class="chatbox-avatar">
+          <img src="https://i.pravatar.cc/150">
+        </div>
+        <div class="chat-partner-name">Stranger (Video)</div>
+        <div class="chatbox-icons">
+          <a href="#" id="closeChat"><i class="fa fa-close"></i></a>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="messages"></div>
+
+      <div class="chat-actions">
+        <button id="disconnectButton" class="chat-action-btn disconnect">Disconnect</button>
+        <button id="requestPhotoButton" class="chat-action-btn photo">📷 Photo</button>
+      </div>
+
+      <div class="chat-input-holder">
+        <textarea id="messageInput" class="chat-input" placeholder="Type a message..."></textarea>
+        <button id="sendButton" class="message-send">Send</button>
+      </div>
+
+      <input type="file" id="hiddenFileInput" accept="image/*" hidden>
+
     </div>
   </div>
 
 </div>
 
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-/>
-
 <script src="script.js"></script>
 
 <script>
-  document.getElementById("closeChat").addEventListener("click", () => {
-    if (confirm("Leave video chat?")) {
-      if (typeof cleanupAndDisconnect === "function") {
-        cleanupAndDisconnect();
-      }
-      window.location.href = "/";
+document.getElementById('closeChat').onclick = () => {
+  if(confirm('Leave video chat?')){
+    if(typeof cleanupAndDisconnect === 'function'){
+      cleanupAndDisconnect();
     }
-  });
+    window.location.href = '/';
+  }
+};
 </script>
 
 </body>
