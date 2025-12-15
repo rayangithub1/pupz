@@ -501,8 +501,8 @@ ul {
         Stranger
       </div>
       <div class="chatbox-icons">
-        <a href="javascript:void(0);" class="fa fa-minus"></a>
-        <a href="javascript:void(0);" class="fa fa-close"></a>
+        <!--a href="javascript:void(0);" class="fa fa-minus"></a-->
+<a href="javascript:void(0);" class="fa fa-close" id="closeChat"></a>
       </div>
     </div>
 
@@ -557,8 +557,28 @@ ul {
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
+	<script>
+  document.getElementById("closeChat").addEventListener("click", function () {
+    const confirmClose = confirm(
+      "Are you sure you want to leave this chat?\nYour conversation will be lost."
+    );
+
+    if (confirmClose) {
+      // OPTIONAL: notify server before leaving
+      if (typeof socket !== "undefined") {
+        socket.disconnect();
+      }
+
+      // Redirect to home page
+      window.location.href = "/";
+      // or: window.location.href = "index.html";
+    }
+  });
+</script>
+
 </body>
 </html>
+
 
 
 
