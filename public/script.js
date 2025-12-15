@@ -41,6 +41,7 @@ async function startVideoMode() {
 
 
 function initializeChatHandlers() {
+    socket.removeAllListeners();
     const videoChatButton = document.getElementById('videoChatButton');
     if (videoChatButton) {
         videoChatButton.addEventListener('click', async () => {
@@ -382,6 +383,7 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
 
 
 
