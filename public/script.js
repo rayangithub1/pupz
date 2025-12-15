@@ -1,86 +1,60 @@
-/* ===============================
-   GLOBAL STATE
-================================ */
 let socket = io();
-let username = '';
 let localStream = null;
 let peerConnection = null;
-let offlineTimeout = null;
 let disconnectState = 'disconnect';
+let offlineTimeout = null;
 
 const config = {
   iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
 };
 
-/* ===============================
+/* =======================
    INIT
-================================ */
-const params = new URLSearchParams(window.location.search);
-const mode = params.get('mode');
-username = localStorage.getItem('username') || '';
+======================= */
+initializeSocketHandlers();
+initializeUIHandlers();
 
-if (!username || !mode) {
-  alert('Please enter your name and choose a chat mode.');
-  window.location.href = 'index.html';
-}
-
-socket.emit('setName', username);
-initializeChatHandlers();
-
-if (mode === 'video') initMedia();
-
-/* ===============================
-   MEDIA
-================================ */
-async function initMedia() {
-  if (localStream) return;
-
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true
-    });
-
-    document.getElementById('videoContainer').style.display = 'block';
-    document.getElementById('localVideo').srcObject = localStream;
-  } catch (err) {
-    alert('Camera or microphone access denied.');
-  }
-}
-
-/* ===============================
+/* =======================
    SOCKET HANDLERS
-================================ */
-function initializeChatHandlers() {
+======================= */
+function initializeSocketHandlers() {
   socket.removeAllListeners();
 
   socket.on('waiting', () => {
-    appendMessage(
-      'Keep the chat clean. Waiting for a partner...',
-      'system'
-    );
+    systemMessage('Waiting for a partner...');
     disableChat();
   });
 
   socket.on('partnerFound', async () => {
     clearOfflineTimer();
-    appendMessage('You are now connected with a partner!', 'system');
+    systemMessage('You are now connected with a partner!');
     enableChat();
+    await startMedia();
+    createPeer(true);
+  });
 
-    await initMedia();
-    createPeerConnection();
+  socket.on('partnerDisconnected', () => {
+    systemMessage('Your partner has disconnected.');
+    resetDisconnectButton();
+    disableChat();
+    cleanupConnection();
 
-    // ONLY initiator creates offer
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    socket.emit('videoOffer', offer);
+    offlineTimeout = setTimeout(cleanupConnection, 10000);
+  });
+
+  socket.on('message', ({ text, name }) => {
+    appendMessage(text, 'partner', name || 'Stranger');
+  });
+
+  socket.on('receiveImage', img => {
+    appendImage(img, 'partner');
   });
 
   socket.on('videoOffer', async offer => {
-    await initMedia();
-    createPeerConnection();
-
+    await startMedia();
+    createPeer(false);
     await peerConnection.setRemoteDescription(offer);
+
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
     socket.emit('videoAnswer', answer);
@@ -90,28 +64,31 @@ function initializeChatHandlers() {
     peerConnection?.setRemoteDescription(answer);
   });
 
-  socket.on('iceCandidate', c => {
-    peerConnection?.addIceCandidate(c);
+  socket.on('iceCandidate', candidate => {
+    peerConnection?.addIceCandidate(candidate);
   });
-
-  socket.on('message', ({ text, name }) => {
-    appendMessage(text, 'partner', name);
-  });
-
-  socket.on('partnerDisconnected', handlePartnerDisconnect);
 }
 
-/* ===============================
-   PEER CONNECTION
-================================ */
-function createPeerConnection() {
-  if (peerConnection) return;
+/* =======================
+   WEBRTC
+======================= */
+async function startMedia() {
+  if (localStream) return;
 
+  localStream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+  });
+
+  document.getElementById('localVideo').srcObject = localStream;
+}
+
+function createPeer(isOfferer) {
   peerConnection = new RTCPeerConnection(config);
 
-  localStream.getTracks().forEach(track => {
-    peerConnection.addTrack(track, localStream);
-  });
+  localStream.getTracks().forEach(track =>
+    peerConnection.addTrack(track, localStream)
+  );
 
   peerConnection.ontrack = e => {
     document.getElementById('remoteVideo').srcObject = e.streams[0];
@@ -120,32 +97,97 @@ function createPeerConnection() {
   peerConnection.onicecandidate = e => {
     if (e.candidate) socket.emit('iceCandidate', e.candidate);
   };
+
+  if (isOfferer) {
+    peerConnection.createOffer().then(offer => {
+      peerConnection.setLocalDescription(offer);
+      socket.emit('videoOffer', offer);
+    });
+  }
 }
 
-/* ===============================
-   DISCONNECT LOGIC
-================================ */
-function handlePartnerDisconnect() {
-  appendMessage('Your partner went offline.', 'system');
-  disableChat();
-  resetDisconnectButton();
+/* =======================
+   UI HANDLERS
+======================= */
+function initializeUIHandlers() {
+  document.getElementById('sendButton').onclick = () => {
+    const input = document.getElementById('messageInput');
+    const msg = input.value.trim();
+    if (!msg) return;
 
-  offlineTimeout = setTimeout(() => {
-    cleanupConnection();
-    appendMessage('Disconnected due to inactivity.', 'system');
-  }, 10000);
+    appendMessage(msg, 'user');
+    socket.emit('sendMessage', { text: msg });
+    input.value = '';
+  };
+
+  document.getElementById('disconnectButton').onclick = () => {
+    const btn = document.getElementById('disconnectButton');
+
+    if (disconnectState === 'disconnect') {
+      btn.textContent = 'Confirm?';
+      btn.classList.add('confirm');
+      disconnectState = 'confirm';
+      return;
+    }
+
+    if (disconnectState === 'confirm') {
+      socket.emit('disconnectPartner');
+      systemMessage('You disconnected from your partner.');
+      resetDisconnectButton();
+      disableChat();
+      cleanupConnection();
+      return;
+    }
+
+    if (disconnectState === 'start') {
+      socket.emit('startLooking');
+      systemMessage('Searching for a new partner...');
+      btn.textContent = 'Disconnect';
+      btn.classList.remove('start');
+      disconnectState = 'disconnect';
+    }
+  };
+
+  document.getElementById('hiddenFileInput').onchange = e => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      socket.emit('sendImage', reader.result);
+      appendImage(reader.result, 'user');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.addEventListener('beforeunload', () => {
+    socket.emit('disconnectPartner');
+  });
 }
 
+/* =======================
+   HELPERS
+======================= */
 function cleanupConnection() {
-  clearOfflineTimer();
-
   if (peerConnection) {
-    peerConnection.getSenders().forEach(s => s.track?.stop());
     peerConnection.close();
     peerConnection = null;
   }
 
+  if (localStream) {
+    localStream.getTracks().forEach(t => t.stop());
+    localStream = null;
+  }
+
   document.getElementById('remoteVideo').srcObject = null;
+}
+
+function resetDisconnectButton() {
+  const btn = document.getElementById('disconnectButton');
+  btn.textContent = 'Start';
+  btn.classList.remove('confirm');
+  btn.classList.add('start');
+  disconnectState = 'start';
 }
 
 function clearOfflineTimer() {
@@ -155,79 +197,52 @@ function clearOfflineTimer() {
   }
 }
 
-/* ===============================
-   UI CONTROLS
-================================ */
-const sendButton = document.getElementById('sendButton');
-const messageInput = document.getElementById('messageInput');
-const disconnectButton = document.getElementById('disconnectButton');
-
-sendButton.type = disconnectButton.type = 'button';
-
-sendButton.onclick = () => {
-  const msg = messageInput.value.trim();
-  if (!msg) return;
-
-  appendMessage(msg, 'user');
-  socket.emit('sendMessage', { text: msg, name: username });
-  messageInput.value = '';
-};
-
-disconnectButton.onclick = () => {
-  if (disconnectState === 'disconnect') {
-    disconnectButton.textContent = 'Confirm?';
-    disconnectState = 'confirm';
-    return;
-  }
-
-  if (disconnectState === 'confirm') {
-    socket.emit('disconnectPartner');
-    appendMessage('You disconnected.', 'system');
-    resetDisconnectButton();
-    disableChat();
-    disconnectState = 'start';
-    return;
-  }
-
-  socket.emit('startLooking');
-  appendMessage('Searching for a new partner...', 'system');
-  disconnectButton.textContent = 'Disconnect';
-  disconnectState = 'disconnect';
-};
-
-function resetDisconnectButton() {
-  disconnectButton.textContent = 'Start';
-  disconnectState = 'start';
-}
-
-function disableChat() {
-  sendButton.disabled = true;
-  document.querySelector('.chat-actions').classList.add('hidden');
-}
-
 function enableChat() {
-  sendButton.disabled = false;
+  document.getElementById('sendButton').disabled = false;
   document.querySelector('.chat-actions').classList.remove('hidden');
 }
 
-/* ===============================
-   MESSAGE HELPERS
-================================ */
-function appendMessage(message, type, name = '') {
-  const div = document.getElementById('messages');
-  const holder = document.createElement('div');
-  holder.className = 'message-box-holder';
+function disableChat() {
+  document.getElementById('sendButton').disabled = true;
+  document.querySelector('.chat-actions').classList.add('hidden');
+}
 
-  if (type === 'system') {
-    holder.innerHTML = `<div class="message-box system-message">${message}</div>`;
-  } else if (type === 'user') {
-    holder.innerHTML = `<div class="message-box">${message}</div>`;
-  } else {
-    holder.innerHTML = `
-      <div class="message-sender">${name || 'Stranger'}</div>
-      <div class="message-box message-partner">${message}</div>`;
-  }
+/* =======================
+   MESSAGE UI
+======================= */
+function systemMessage(text) {
+  const box = document.createElement('div');
+  box.className = 'message-box-holder';
+  box.innerHTML = `<div class="message-box system">${text}</div>`;
+  messages.appendChild(box);
+  messages.scrollTop = messages.scrollHeight;
+}
 
-  div.appendChild(holder);
-  div.scrollTop = div.scrollHeight;
+function appendMessage(text, type, name = '') {
+  const box = document.createElement('div');
+  box.className = 'message-box-holder';
+
+  box.innerHTML =
+    type === 'user'
+      ? `<div class="message-box">${text}</div>`
+      : `<div class="message-sender">${name}</div>
+         <div class="message-box message-partner">${text}</div>`;
+
+  messages.appendChild(box);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function appendImage(src, type) {
+  const box = document.createElement('div');
+  box.className = 'message-box-holder';
+
+  box.innerHTML = `
+    ${type === 'partner' ? '<div class="message-sender">Stranger</div>' : ''}
+    <div class="message-box ${type === 'partner' ? 'message-partner' : ''}">
+      <img src="${src}" style="max-width:200px;border-radius:8px;">
+    </div>
+  `;
+
+  messages.appendChild(box);
+  messages.scrollTop = messages.scrollHeight;
 }
