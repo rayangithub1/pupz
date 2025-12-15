@@ -18,6 +18,18 @@ socket = io();
 socket.emit('setName', username);
 initializeChatHandlers();
 
+//browser leave disconnection//
+window.addEventListener('beforeunload', () => {
+  cleanupAndDisconnect();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    cleanupAndDisconnect();
+  }
+});
+//browser leave disconnection//
+
 if (mode === 'video') {
     startVideoMode();
 }
@@ -321,6 +333,31 @@ function appendMessage(message, type, name = '') {
   messagesDiv.scrollTop = messagesDiv.scrollHeight
 }
 
+//browser leave disconnection//
+function cleanupAndDisconnect() {
+  try {
+    // Inform server explicitly
+    if (socket && socket.connected) {
+      socket.emit('disconnectPartner');
+      socket.disconnect();
+    }
+
+    // Close WebRTC properly
+    if (peerConnection) {
+      peerConnection.close();
+      peerConnection = null;
+    }
+
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
+      localStream = null;
+    }
+  } catch (e) {
+    console.warn('Cleanup error:', e);
+  }
+}
+//browser leave disconnection//
+
 
 function appendImage(imageData, type) {
   const messagesDiv = document.getElementById('messages')
@@ -351,4 +388,5 @@ const min = 4000;
   const max = 4500;
   const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('randomNumber').textContent = `+${randomValue}`;
+
 
