@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RandomChat - Free Anonymous Video Chat | Connect Instantly</title>
+    <meta name="description"
+        content="Free anonymous video chat app. Connect instantly with random people worldwide. No registration required. Secure peer-to-peer video calls.">
+    <meta name="keywords"
+        content="video chat, random chat, anonymous chat, free video call, WebRTC chat, P2P video, instant video chat, chat with strangers omegle">
+
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://randomchat-hfta.onrender.com">
+
+    <meta property="og:title" content="RandomChat - Free Anonymous Video Chat">
+    <meta property="og:description"
+        content="Connect instantly with random people worldwide through secure video chat. No registration needed.">
+    <meta property="og:image" content="https://randomchat-hfta.onrender.com/assets/preview.jpg">
+    <meta property="og:url" content="https://randomchat-hfta.onrender.com">
+    <meta property="og:type" content="website">
+
+    <meta name="author" content="Hari Thatikonda">
+    <link rel="shortcut icon" href="assets/spider.png?v=2" type="image/x-icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+
+    <link rel="stylesheet" href="index.css?v=2">
+</head>
+
+<body>
+    <header>
+        <h1>Free Anonymous Video Chat</h1>
+        <p>Connect instantly with random people worldwide. No registration, no login. Just secure, peer-to-peer video
+            calls.</p>
+        <div class="active-users">
+            <i class="fa-solid fa-users"></i>
+            <span id="user-count">...</span> people online
+        </div>
+        <button class="cta-button" onclick="openGuidelinesModal()">Start Connecting Now</button>
+    </header>
+
+    <main>
+        <!-- <section class="hero">
+            <img src="assets/preview.jpg" alt="A preview of the RandomChat video chat interface showing two users connected.">
+        </section> -->
+
+        <div class="content-wrapper">
+            <section class="features">
+                <div class="feature">
+                    <i class="fa-solid fa-bolt"></i>
+                    <h3>Instant Connections</h3>
+                    <p>Click and connect to a random person in seconds. No waiting, no fuss.</p>
+                </div>
+                <div class="feature">
+                    <i class="fa-solid fa-user-secret"></i>
+                    <h3>Completely Anonymous</h3>
+                    <p>No login or personal information required. Your identity is always private.</p>
+                </div>
+                <div class="feature">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h3>Secure & Private</h3>
+                    <p>Conversations are peer-to-peer and encrypted. We never see or store your data.</p>
+                </div>
+            </section>
+
+            <section class="info-section">
+                <h2>How It Works</h2>
+                <ol>
+                    <li>Click the <a class="highlight-link" onclick="openGuidelinesModal()">"Start Connecting Now"</a> button.</li>
+                    <li>Read and agree to the Community Guidelines.</li>
+                    <li>Allow access to your camera and microphone when prompted.</li>
+                    <li>Start your conversation! Click "Next" to meet someone new.</li>
+                </ol>
+            </section>
+
+            <section class="bottom-cta">
+                <h2>Ready to Connect?</h2>
+                <button class="cta-button" onclick="openGuidelinesModal()">Start Connecting Now</button>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="producthunt-badge">
+                    <a href="https://www.producthunt.com/products/randomchat?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-randomchat"
+                        target="_blank">
+                        <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1008327&theme=neutral&t=1760345381317"
+                            alt="RandomChat - Meet strangers instantly, chat anonymously, connect globally | Product Hunt" />
+                    </a>
+                </div>
+    
+                <div class="social-links">
+                    <a href="https://github.com/thughari/RandomChat" target="_blank" aria-label="GitHub">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/" target="_blank" aria-label="LinkedIn">
+                        <i class="fa-brands fa-linkedin"></i>
+                    </a>
+                    <a href="mailto:thughari3@gmail.com" aria-label="Email">
+                        <i class="fa-solid fa-envelope"></i>
+                    </a>
+                </div>
+            </div>
+    
+            <div class="footer-bottom">
+                <p>© 2025 <strong>RandomChat</strong>. Built for fun. |
+                    <a href="privacy.html">Privacy Policy</a>
+                </p>
+                <p class="credit">
+                    Made with <i class="fa-solid fa-heart"></i> by
+                    <a href="https://thughari.github.io" target="_blank" rel="noopener noreferrer">
+                        Hari Thatikonda
+                    </a> and
+                    <a href="https://pawanbudati.github.io/portfolio" target="_blank" rel="noopener noreferrer">
+                        Pavan Budati
+                    </a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Guidelines Modal HTML -->
+    <div id="guidelines-modal" class="modal-overlay" onclick="closeGuidelinesModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>Community Guidelines</h2>
+            <div class="modal-body">
+                <p><strong>Welcome!</strong> To keep our community safe and fun for everyone, please agree to these
+                    simple rules:</p>
+                <ul>
+                    <li><strong>Be Respectful:</strong> Harassment, hate speech, racism, sexism, or any abusive behavior
+                        is strictly forbidden.</li>
+                    <li><strong>No Inappropriate Content:</strong> Do not stream nudity, sexually explicit material, or
+                        anything else that is not safe for a general audience.</li>
+                    <li><strong>No Illegal Activities:</strong> Do not promote, engage in, or display any illegal acts.
+                    </li>
+                    <li><strong>Protect Your Privacy:</strong> Do not share personal information like your full name,
+                        address, or financial details.</li>
+                    <li><strong>No Threats or Violence:</strong> Threats of any kind will not be tolerated.</li>
+                </ul>
+                <p>Violating these rules may result in a ban. You are in control: you can stop a chat at any time.</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="cta-button" onclick="window.location.href='app.html'">I Understand and Agree</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "RandomChat",
+        "url": "https://randomchat-hfta.onrender.com",
+        "description": "Free anonymous video chat application that randomly connects users for peer-to-peer video conversations",
+        "applicationCategory": "CommunicationApplication",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "operatingSystem": "Any",
+        "author": { "@type": "Person", "name": "Hari Thatikonda", "url": "https://github.com/thughari" }
+    }
+    </script>
+    <script>
+        const modal = document.getElementById('guidelines-modal');
+
+        function openGuidelinesModal() {
+            modal.style.display = 'flex';
+        }
+
+        function closeGuidelinesModal(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function updateUserCount() {
+            fetch('/api/active-users')
+                .then(response => response.json())
+                .then(data => {
+                    const userCount = document.getElementById('user-count');
+                    userCount.textContent = data.count;
+
+                    userCount.classList.add('pulse');
+                    setTimeout(() => userCount.classList.remove('pulse'), 1000);
+                })
+                .catch(error => console.error('Error fetching user count:', error));
+        }
+
+        // Initial user count update
+        updateUserCount();
+
+        // Update count every 60 seconds
+        // setInterval(updateUserCount, 60000);
+    </script>
+</body>
+
+</html>
